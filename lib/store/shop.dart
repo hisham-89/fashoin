@@ -16,23 +16,32 @@ class Shop {
       content: json['content'],
     );
   }
+  uploadShopImages(id,data)async{
+    var url = baseUrl+'shops/'+id+'/uploadImage';
+    var response = await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+   if((response.statusCode == 200)){
+    var response1=jsonDecode( response.body);
+    if (response1['success']){
+      return response1['data']  ;
+    }
+   }
+
+      return   0;
+  }
+
   addShop (data,context) async{
     var url = baseUrl+'shops';
-
     var response = await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
     var a=1;
-
     return  jsonDecode( response.body);
   }
   getShop( id) async{
 
     var url = baseUrl+'shops/'+id;
     var header=new General().authHeader();
-    var response = await http.post(url,headers: header );
+    var response = await http.get(url,headers: header );
     var response1=jsonDecode( response.body);
-
     if (response1['success']){
-      debugPrint( url);
       return response1['data']  ;
     }
 

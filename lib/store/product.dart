@@ -63,10 +63,10 @@ class Product {
     var user_id=User().getUserId();
     String url;
     if(isMyProducts){
-      url = baseUrl+'Products?search=user_id:$user_id';
+      url = baseUrl+'products?search=user_id:$user_id';
     }
     else
-         url = baseUrl+'Products';
+         url = baseUrl+'products';
     var header=new General().authHeader();
     debugPrint(url+'isMyProducts');
     var response = await http.get(url,headers: header );
@@ -80,4 +80,6 @@ class Product {
     else
       return   0;
   }
+
+
 }

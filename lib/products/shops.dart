@@ -72,7 +72,10 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(onWillPop:() {
+      Navigator.of(context).pop();
+      },
+        child: Scaffold(
       appBar: AppBar(
         title: Text(widget.title,style: TextStyle(color: Colors.white), ),
       ),
@@ -82,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
         child:_buildListView()
         , ),
-    );
+    ));
   }
 
   Widget _buildListView() {
@@ -130,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(color: MYColors.grey1(),
                         borderRadius: BorderRadius.circular(10.0),
                         image: DecorationImage(
-                            image: item['profile_image']!=null? CachedNetworkImageProvider(item['profile_image']):AssetImage('assets/images/fashionLogo.jpeg'),
+                            image: item['profile_image']!=null? General.mediaUrl(item['profile_image']) :AssetImage('assets/images/fashionLogo.jpeg'),
                             fit: BoxFit.fitWidth
                         )
                     )

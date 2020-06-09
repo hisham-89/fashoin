@@ -1,7 +1,13 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutterapp3/config/url.dart';
+import 'package:flutterapp3/general/Alert.dart';
+import 'package:flutterapp3/general/Loading.dart';
+import 'package:flutterapp3/general/PopUp.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/likes.dart';
@@ -12,12 +18,13 @@ import 'package:flutterapp3/products/products.dart';
 import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/shop.dart';
 import 'package:getflutter/components/carousel/gf_carousel.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ShopScreen extends StatelessWidget {
   // This widget is the root of your application.
@@ -58,6 +65,16 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
   String id;
   _ShopPageState(this.shop,this.id);
   List data;
+  File tempCoverImage=null;
+  File tempProfileImage=null;
+  bool isLoading=false;
+  String changedImage='';
+  var tempCoverImage64;
+  var tempProfileImage64;
+  PanelController _pc = new PanelController();
+  bool uploadImage=false;
+  bool uploadImage2=false;
+  final picker = ImagePicker();
   final List<String> imageList = [
     "https://cdn.pixabay.com/photo/2015/04/25/20/20/dress-739665_960_720.jpg",
     "https://image.shutterstock.com/image-photo/amused-beautiful-young-woman-pink-600w-594774212.jpg",
@@ -69,8 +86,16 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
   List<Tab> tabList = List();
   TabController _tabController;
   @override
-  void initState() {
+  Future<void> initState()   {
     super.initState();
+    var res;
+
+    if (shop == null){
+      this.getJSONData();
+    }else
+      {
+        this.id=shop['id'].toString();
+      }
     tabList.add(new Tab(text:'Info',));
     tabList.add(new Tab(text:'Products',));
     _tabController = new TabController( vsync: this, length:
@@ -84,10 +109,31 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
     setState(() {
       // Get the JSON data
       shop  = response;
+
     });
     return "Successfull";
   }
-
+  Future<bool> _onBackPressed() async{
+    return showDialog(
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text('Are you sure?'),
+        content: new Text('Do you want to exit an App'),
+        actions: <Widget>[
+          new GestureDetector(
+            onTap: () => Navigator.of(context).pop(false),
+            child: Text("NO"),
+          ),
+          SizedBox(height: 16),
+          new GestureDetector(
+            onTap: () => Navigator.of(context).pop(true),
+            child: Text("YES"),
+          ),
+        ],
+      ),
+    ) ??
+        false;
+  }
   static final String path = "lib/src/pages/profile/profile3.dart";
   final image =  "https://image.shutterstock.com/image-photo/beautiful-tender-girl-silk-top-600w-1081362410.jpg";
   List categories(cats){
@@ -97,7 +143,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
       li.add(
           Expanded(child: Column(
             children: <Widget>[
-              Image(image: cat['category']['icon']!=null?  CachedNetworkImageProvider(General.mediaUrl( cat['category']['icon'])):AssetImage('assets/images/fashionLogo.jpeg'),width: 30,
+              Image(image: cat['category']['icon']!=null?  General.mediaUrl( cat['category']['icon']):AssetImage('assets/images/fashionLogo.jpeg'),width: 30,
               ), SizedBox(height: 4.0),
               Text( cat['category']['name'] ,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)
             ],
@@ -105,23 +151,143 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
     }
     return li;
   }
+  Future getImage(image) async {
+    _pc.close();
+    var  pickedFile = await picker.getImage(source: ImageSource.gallery);
+    File imageFile = new File(pickedFile.path);
+    List<int> imageBytes = imageFile.readAsBytesSync();
+    String base64Image = base64Encode(imageBytes);
+    if(image=='cover_image'){
+    setState(() {
+      uploadImage=true;
+      tempCoverImage=imageFile;
+      tempCoverImage64=base64Image;
+    });}
+    else{
+      setState(() {
+        uploadImage2=true;
+        tempProfileImage=imageFile;
+        tempProfileImage64=base64Image;
+      });}
+      debugPrint('ssssssss');
+
+    }
+
+  removeCoverImage(image){
+    if(image=='cover_image') {
+      setState(() {
+        uploadImage = false;
+        tempCoverImage64 = '';
+        tempCoverImage = null;
+      });
+    }
+    else{
+      setState(() {
+        uploadImage2=false;
+        tempProfileImage= null ;
+        tempProfileImage64="";
+      });
+
+    }
+    }
+
+  uploadCoverImage(image,tempImage) async{
+
+    setState(() {
+      isLoading=true;
+    });
+  var res=await  Shop().uploadShopImages(  this.id ,{image:tempImage });
+  if (res!=0){
+    Alert(context,"Successfully added image",ShopScreen(id:this.id));
+   setState(() {
+     uploadImage=false;
+     isLoading=false;
+   });}
+  else {
+
+  }
+  }
+  openMenu(image){
+    changedImage=image;
+    //popUp(image);
+    _pc.open();
+  }
+   viewImage(changedImage){
+    var child=PhotoView(
+      imageProvider: General.mediaUrl(shop[changedImage]),
+    );
+     PopUp(context, child);
+     _pc.close();
+   }
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
     return
-      Scaffold(
+     new  WillPopScope(onWillPop: _onBackPressed,
+      child:new
+       Scaffold(
           backgroundColor: Colors.grey.shade300,
-          body:
+          body:SlidingUpPanel (
+              minHeight:0,maxHeight:180, backdropEnabled: true,
+              controller: _pc,
+              panel: Center(
+                child:
+                Column(
+                children:<Widget>[
+                  ListTile(onTap: () {viewImage( changedImage );},
+                    title: Text("View Image"),
+                    leading: Icon(Icons.camera),
+                  ),
+                  ListTile(onTap: () {getImage( changedImage );},
+                  title: Text("Change Image"),
+                  leading: Icon(Icons.edit),
+                 ),
+//             ListTile(
+//             title: Text(""
+//                 "Delete Image"),
+//              leading: Icon(Icons.delete),
+//           ),
+              ]
+              )),
+            body:
+          isLoading?ProgressDialogPrimary() :
           // ProductsScreen()
           SingleChildScrollView(
             child :
             //
             Stack(
               children: <Widget>[
+
                 SizedBox(
                   height: 250,
                   width: double.infinity,
-                  child:shop!=null && shop['cover_image']!=null ?Image.network(shop['cover_image'], fit: BoxFit.cover ):Container(),
-                ),
+                  child:tempCoverImage!=null?  Image.file(tempCoverImage,fit: BoxFit.fitWidth):shop!=null && shop['cover_image']!=null ?
+                  InkWell(child:  PhotoView(
+                    imageProvider: General.mediaUrl(shop['cover_image'] ),
+                  )  ,onTap:() {
+                     openMenu('cover_image');
+
+                  },):
+                  Center(
+                    child:ListTile(onTap: (){getImage('cover_image');},
+                      title:
+                    new Row(children: <Widget>[
+                      Icon(Icons.photo),
+                      new Text("Add Cover Image",
+                      style: new TextStyle(
+                           fontSize: 18.0),)
+                    ], mainAxisAlignment: MainAxisAlignment.center,),
+                    //  leading: Icon(Icons.photo),
+                      contentPadding: EdgeInsets.only(left: 4),)
+                    ,),
+                ),  uploadImage==true?Positioned(
+                  child:RaisedButton( textColor: MYColors.primaryColor(), splashColor:  MYColors.grey()
+                  ,child: Text('Upload Image'),onPressed: (){uploadCoverImage('cover_image',tempCoverImage64);},) ,top: 100,left:size.width/3.4,):Container(),
+                uploadImage==true?Positioned(
+                  child:RaisedButton( textColor:Colors.red, splashColor:  Colors.red
+                    ,child: Text('Cancel'),onPressed: (){removeCoverImage('cover_image',);},) ,top: 150,left:size.width/3.4,):Container(),
+
                 Container(
                   margin: EdgeInsets.fromLTRB(16.0, 200.0, 16.0, 16.0),
                   child: Column(
@@ -144,7 +310,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Row(children: <Widget>[
-                                        Text( shop['name'],  style: Theme.of(context).textTheme.title,),
+                                        Text(shop!=null&&shop['name']!=null?shop['name']:"",  style: Theme.of(context).textTheme.title,),
                                         Expanded( child: Container( alignment: Alignment.bottomRight, child:Icon( Icons.thumb_up ,textDirection: TextDirection.rtl)) ,) ],),
                                       SizedBox(height: 30.0),
 //                                    ListTile(
@@ -182,24 +348,41 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                                 SizedBox(height: 10.0),
                                 Row(
                                   children:
-                                  shop['shop_categories']!=null? categories( shop['shop_categories']):<Widget>[Text('')]
+                                  shop!=null&& shop['shop_categories']!=null? categories( shop['shop_categories']):<Widget>[Text('')]
                                   ,
                                 )
                               ],
                             ),
                           ),
-                          Container(
+                          InkWell(   onTap:() {
+                            openMenu('profile_image');
+                           },
+                            child:
+                            Container(
                             height: 80,
                             width: 80,
+                            child:tempProfileImage!=null?  Image.file(tempProfileImage,fit: BoxFit.cover,): Container() ,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
                                 image: DecorationImage(
-                                    image: shop['profile_image']!=null? CachedNetworkImageProvider(shop['profile_image']):AssetImage('assets/images/fashionLogo.jpeg'),
+                                    image: shop!=null&&shop['profile_image']!=null?   General.mediaUrl(shop['profile_image'] ):AssetImage('assets/images/fashionLogo.jpeg'),
                                     fit: BoxFit.cover
                                 )
                             ),
                             margin: EdgeInsets.only(left: 16.0),
-                          ),
+                          )  ) ,
+//                          Positioned(
+//                            child: InkWell(child: Icon(Icons.settings ,color: Colors.grey ) ,
+//                              onTap: (){getImage('profile_image');}, )
+//                            ,top: 0,left:75,),
+                          uploadImage2==true?Positioned(
+                            child:RaisedButton( textColor:  Colors.black//,  color:   Colors.transparent
+                              ,padding: EdgeInsets.all(2)
+                              ,child: Text('Upload Image'),onPressed: (){uploadCoverImage('profile_image',tempProfileImage64);},) ,top: -8,left:96,):Container(),
+                          uploadImage2==true?Positioned(
+                            child:RaisedButton( textColor:Colors.red, splashColor:  Colors.red,padding: EdgeInsets.all(0)
+                              ,child: Text('Cancel'  ),onPressed: (){removeCoverImage('profile_image');},) ,top:  38,left:96,):Container(),
+
                         ],
                       ),
 
@@ -233,8 +416,9 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
             )  ,
 
           )
-
+          )
       )
+    )
     ;
   }
   Widget info (){
@@ -275,7 +459,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
           ):Container(),
           ListTile(
             title: Text("Joined Date"),
-            subtitle: Text(General.getDate(shop['created_at'],time: false,year: true)  ),
+            subtitle: Text(General.getDate(shop!=null ?shop['created_at']:null,time: false,year: true)  ),
             leading: Icon(Icons.calendar_view_day),
           ),
         ],));
@@ -283,11 +467,8 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
 
 
   Widget products( ){
-    if (shop == null)
-      this.getJSONData();
     ///**/
     return  (
-
         Column(children: <Widget>[
 
           Container(  decoration: BoxDecoration(
@@ -297,7 +478,8 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
               margin: EdgeInsets.only(top: 0),    child:ListTile(title: Text("Our products",style: TextStyle(fontSize: 20,color: MYColors.primaryColor()),),)),
           ListTile(
 
-            title:RaisedButton.icon(icon: Icon(Icons.add ,color: Colors.white,) , color:MYColors.primaryColor(),  label:  Text(
+            title:RaisedButton.icon(icon: Icon(Icons.add ,color: Colors.white,) , color:MYColors.primaryColor(),
+              label:  Text(
               'Add New Product',
               style: TextStyle(
                 color
@@ -307,7 +489,6 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
             onTap: (){
               //  _pageController.jumpToPage(index);
               // Navigator.of(context).pop();
-
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => AddProductScreen(shopId:shop['id'].toString()))
               );
@@ -316,7 +497,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
           Container ( //height: 600,
               child:  ListView.builder(shrinkWrap: true,  physics: NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(5.0),
-                  itemCount:  shop['products'] == null ? 0 : shop['products'] .length,
+                  itemCount:  shop==null || shop['products'] == null ? 0 : shop['products'] .length,
                   itemBuilder: (context, index) {
                     //  return _buildImageColumn(data[index]);
                     return listViewProducts(shop['products'] [index] );
@@ -364,11 +545,8 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                                               context,
                                               MaterialPageRoute(builder: (context) => ProductsDetailsScreen(product:product, id:product_id))
                                           );
-                                          } ,child:
-                                          Image.network(
-                                          General.mediaUrl(url['name']) ,
-                                            fit: BoxFit.cover,
-                                          )),
+                                          } ,child:Image(image:  General.mediaUrl(url['name']) ,)
+                                         ),
                                         ),
                                       ),
 
@@ -440,10 +618,10 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                       Icon(Icons.favorite_border),
                       SizedBox(width: 5.0,),
                       Text("20.2k"),
-                      SizedBox(width: 16.0,),
-                      Icon(Icons.comment),
-                      SizedBox(width: 5.0,),
-                      Text("2.2k"),
+                    //  SizedBox(width: 16.0,),
+                     // Icon(Icons.comment),
+                      //SizedBox(width: 5.0,),
+                     // Text("2.2k"),
                     ],),
                     SizedBox(height: 10.0,),
                     Text(item['details'] == null ? '':item['details'].length>20? item['details'].substring(0,20)+"..." :item['details'], textAlign: TextAlign.justify,)

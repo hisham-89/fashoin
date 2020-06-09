@@ -6,6 +6,7 @@ import 'package:flutter_multiselect/flutter_multiselect.dart';
 import 'package:flutterapp3/general/Alert.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/home.dart';
+import 'package:flutterapp3/products/HomeScreen.dart';
 import 'package:flutterapp3/products/category.dart';
 import 'package:flutterapp3/products/shop.dart';
 import 'package:flutterapp3/store/category.dart';
@@ -95,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
     String message="";
     if(bodyContent['success'] )
     {
-      Alert(context,"Successfully  updated shop details",HomeWidget());
+      Alert(context,"Successfully  updated shop details",HomeScreen());
 
     log('data11: $bodyContent');
     // Hiding the CircularProgressIndicator

@@ -7,6 +7,7 @@ import 'package:flutterapp3/config/url.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/home.dart';
 import 'package:flutterapp3/likes.dart';
+import 'package:flutterapp3/products/HomeScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 class User {
@@ -71,7 +72,7 @@ class User {
     storage.clear( );
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HomeWidget( ))
+        MaterialPageRoute(builder: (context) => HomeScreen( ))
     );
     var url = baseUrl+'logout';
     String device_id= await _getDeviceId();
@@ -86,7 +87,7 @@ class User {
       storage.clear( );
       Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomeWidget( ))
+          MaterialPageRoute(builder: (context) => HomeScreen( ))
       );
     }
     return  jsonDecode( response.body);

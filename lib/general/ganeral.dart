@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:date_util/date_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterapp3/config/url.dart';
@@ -18,7 +19,11 @@ class General {
   }
 
   static mediaUrl(image) {
-    return url + image;
+
+    if(image!=null)
+     return    CachedNetworkImageProvider(url + image );
+    else
+      return AssetImage("assets/images/fashionLogo.jpeg");
   }
 
   static getTime(date) {
@@ -28,6 +33,8 @@ class General {
   }
 
   static getDate(date, {time: false, year: false }) {
+    if(date==null)
+      return"";
     var dateUtility = new DateUtil();
     var moonLanding = DateTime.parse(date);
     String monthName = dateUtility.month(moonLanding.month);
