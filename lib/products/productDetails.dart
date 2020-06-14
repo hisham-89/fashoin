@@ -1,14 +1,22 @@
+
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
 import 'package:flutterapp3/config/icons.dart';
+import 'package:flutterapp3/general/alert.dart';
+import 'package:flutterapp3/general/choice.dart';
+import 'package:flutterapp3/general/Loading.dart';
 
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
+import 'package:flutterapp3/products/homeScreen.dart';
+import 'package:flutterapp3/products/addEditProduct.dart';
 
 import 'package:flutterapp3/products/shopScreen.dart';
 import 'package:flutterapp3/store/message.dart';
+import 'package:flutterapp3/store/product.dart';
 
 import 'package:getflutter/components/carousel/gf_carousel.dart';
 
@@ -27,13 +35,9 @@ class ProductsDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(   primaryColor:     MYColors.primaryColor(),textTheme: TextTheme(
-        body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
-      ),
-      ),
-      home: ProductsDetailsScreenPage(title: 'ProductsScreen',product:this.product,id:this.id ),
+    return Scaffold(
+
+      body: ProductsDetailsScreenPage(title: 'ProductsScreen',product:this.product,id:this.id ),
     );
   }
 }
@@ -45,30 +49,54 @@ class ProductsDetailsScreenPage extends StatefulWidget {
   final String title;
 
   @override
-  _ProductsDetailsScreenPageState createState() => _ProductsDetailsScreenPageState( this.product);
+  _ProductsDetailsScreenPageState createState() => _ProductsDetailsScreenPageState( this.product,this.id);
 }
 
 class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   var product;
-  _ProductsDetailsScreenPageState(this.product);
+  bool visible=false;
+  String id;
+  _ProductsDetailsScreenPageState(this.product,this.id);
   List data;
+    List<Choice> choices = const <Choice>[
+
+    const Choice(id:"1", title: 'Edit', icon: Icons.edit),
+    const Choice(id:"2",title: 'Delete  ', icon: Icons.delete),
+
+  ];
   // Function to get the JSON data
   Future<String> getJSONData() async {
-    var response1;
-    var message=new Message();
-    //   response1= await message.getMessages(   );
-    var header=new General().authHeader();
-
-    var response = await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
-    response1=jsonDecode( response.body);
+    var res =null;
     setState(() {
-      // Get the JSON data
-      data  = response1;
+
+      visible=true;
     });
-    return "Successfull";
+    if(this.id!='' &&product==null)
+      res= await Product().getProductsDetails( id);
+    if(res!=0 && res!=null){
+      setState(() {
+        product=res;
+
+      });
+    }
+    setState(() {
+
+      visible=false;
+    });
+  }
+  _select(Choice choice ,{context})
+  {
+    if (choice.id=="1")
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => AddProductScreen(shopId:this.id))
+      );
+    AddProductScreen();
+
   }
   Widget imageSlider(imageList,product_id,product){
+
     return(
+        (imageList==null||imageList.length==0)?  Container():
         GFCarousel( height:400,
           items: imageList.map<Widget>(
                 (url) {
@@ -148,24 +176,40 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   Widget build(BuildContext context) {
     return Scaffold( backgroundColor: Colors.grey.shade300,
 
-      appBar: AppBar( elevation: 0,
+      appBar: AppBar( elevation: 0,backgroundColor:      MYColors.primaryColor(),
         leading: new IconButton(
-            icon: new Icon(Icons.arrow_back),
-            onPressed: () =>    Navigator.of(context).pop()
+            icon: new Icon(Icons.arrow_back,color: Colors.white,),
+            onPressed: () =>     Navigator.of(context).maybePop()
 
         ),
-        iconTheme: IconThemeData(
-            color: Colors.black
-        ),
-        brightness: Brightness.light,
-        // backgroundColor: Colors.transparent,
 
-        title: Text("Back to Shopping", style: TextStyle(color: Colors.black),),
+
+        title: Text(product!=null? product['name']:'' , style: TextStyle(color: Colors.white),),
         actions: <Widget>[
 
+          PopupMenuButton<Choice>(color: Colors.white,
+            onSelected:  (Choice choice) {
+              if (choice.id=="1")
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => AddProductScreen(shopId: product['shop']['id'].toString(),productId: product['id'].toString()))
+                );
+              if (choice.id=="2")
+                Alert(context,"Are you sure to delete",HomeScreen()).AlertBeforeDelete( Product(),id);
+            } ,
+            itemBuilder: (BuildContext context) {
+              return choices.map((Choice choice) {
+                return PopupMenuItem<Choice>(
+                    value: choice,
+                    child: ListTile(title: Text(choice.title) ,leading:Icon(choice.icon) ,)
+
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
-      body: SingleChildScrollView(
+      body:   visible?ProgressDialogPrimary() :
+      SingleChildScrollView(
         //  fit: StackFit.expand,
         child: Column(
             children: <Widget>[

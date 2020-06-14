@@ -3,37 +3,30 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_multiselect/flutter_multiselect.dart';
-import 'package:flutterapp3/general/Alert.dart';
-import 'package:flutterapp3/general/colors.dart';
-import 'package:flutterapp3/home.dart';
-import 'package:flutterapp3/products/HomeScreen.dart';
-import 'package:flutterapp3/products/category.dart';
-import 'package:flutterapp3/products/shop.dart';
+import 'package:flutterapp3/general/alert.dart';
+import 'package:flutterapp3/general/Loading.dart';
+import 'package:flutterapp3/products/shopScreen.dart';
 import 'package:flutterapp3/store/category.dart';
 import 'package:flutterapp3/store/shop.dart';
 import 'package:flutterapp3/store/user.dart';
 
 
-class ShopUserFormScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new    MyHomePage(title: 'Shop Info')
-    ;
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class ShopUserFormScreen extends StatefulWidget {
   final String title;
+  String shopId="";
+  ShopUserFormScreen({Key key, this.title,this.shopId}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _MyHomePageState createState() => new _MyHomePageState(this.shopId);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<ShopUserFormScreen> {
+  _MyHomePageState(  this.shopId) ;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   List<String> _colors = <String>['', 'red', 'green', 'blue', 'orange'];
   String _color = '';
+  String shopId;
+  var shop;
   bool visible=false;
   final shopNameController=TextEditingController();
   final facebookController=TextEditingController();
@@ -44,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final addressController=TextEditingController();
   dynamic categories=[];
   dynamic shopCategories=[];
+
    Future getShopsCategories() async {
 
     var res= await Category().getShopsCategories(1);
@@ -53,10 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
    }
   Future updateShopDetails() async{
 
-    // Showing CircularProgressIndicator.
-
-    // Getting value from Controller
-
     String shopName= shopNameController.text;
     String facebook= facebookController.text;
     String phone= phoneController.text;
@@ -64,8 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
     String email= emailController.text;
     String web= webController.text;
     String address= addressController.text;
-
-
     if (shopName==''  ) {
       setState(() {
         visible = false;
@@ -75,9 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       visible = true ;
     });
-
-    // SERVER register API UR
-
     // Store all data with Param Name.
     var data = {'phone': phone, 'email': email, 'facebook' : facebook,'name':shopName,'instagram':instagram ,'website':web ,
       'user_id':User().getUserId(),'shopCategories':categories,
@@ -85,7 +70,12 @@ class _MyHomePageState extends State<MyHomePage> {
     log('data: $data');
     // Starting Web API Call.
     var shop=new Shop();
-    var response = await shop.addShop(data,context);// await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+    var response;
+    if(shopId==''|| shopId==null)
+      response  = await shop.addShop(data,context);// await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+    else
+      response = await shop.editShop(data,shopId,context);// await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+
     //  log('data: $response');
     // Getting Server response into variable.
     Map<String, dynamic> bodyContent =  response;
@@ -96,16 +86,12 @@ class _MyHomePageState extends State<MyHomePage> {
     String message="";
     if(bodyContent['success'] )
     {
-      Alert(context,"Successfully  updated shop details",HomeScreen());
-
-    log('data11: $bodyContent');
-    // Hiding the CircularProgressIndicator
-
+      if(shopId==''||shopId==null)
+        shopId=response['data']['id'].toString();
+      Alert(context,"Successfully  updated shop details",ShopScreen(id:shopId));
     }
     else if(bodyContent['error']!=''){
 
-      // If Email or Password did not Matched.
-      // Hiding the CircularProgressIndicator.
       setState(() {
         visible = false;
       });
@@ -136,16 +122,42 @@ class _MyHomePageState extends State<MyHomePage> {
       );}
 
   }
+  Future<String> getJSONData() async {
+    var res =null;
+    setState(() {
+      visible=true;
+    });
+    if(this.shopId !=''  && this.shopId !=null)
+      res= await Shop().getShop( this.shopId);
+
+    if(res!=0 && res!=null){
+      setState(() {
+        shop=res;
+        shopNameController.text=shop['name'];
+        facebookController.text=shop['facebook'];
+        instagramController.text=shop['instagram'];
+        phoneController.text=shop['phone'];
+        emailController.text=shop['email'];
+        webController.text=shop['website'];
+        addressController.text=shop['address'];
+      });
+    }
+    setState(() {
+      visible=false;
+    });
+  }
   @override
   Widget build(BuildContext context) {
      if (shopCategories.length==0){
        getShopsCategories();
      }
     return new Scaffold(resizeToAvoidBottomPadding: false,
-      appBar: new AppBar(
-        title: new Text(widget.title),
+      appBar: new AppBar(   iconTheme: new IconThemeData(color: Colors.white),
+        title: new Text(shopId==""?"Add shop":"Edit ",style: TextStyle(color: Colors.white)),
       ),
-      body: new SingleChildScrollView(child:
+      body:
+      visible?ProgressDialogPrimary() :
+      new SingleChildScrollView(child:
       Column(children: <Widget>[
       SafeArea(
           top: false,
@@ -163,6 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: 'Enter your shop name',
                       labelText: 'Shop Name',
                     ),controller: shopNameController,
+
                   ),
 
                   new TextFormField(
@@ -302,5 +315,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ),),]
       ,)),
     );
+  }
+  @override
+  void initState() {
+    super.initState();
+    // Call the getJSONData() method when the app initializes
+    this.getJSONData();
   }
 }

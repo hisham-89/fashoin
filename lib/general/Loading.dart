@@ -8,13 +8,13 @@ class ProgressDialogPrimary extends StatelessWidget {
         .of(context)
         .platformBrightness == Brightness.light;
 
-    return Scaffold(
-      body: Center(
+    return Container(
+      child: Center(
         child: CircularProgressIndicator(
          // valueColor: new AlwaysStoppedAnimation<Color>(AppColors.themeColorSecondary),
         ),
       ),
-      backgroundColor: brightness ?  Colors.white.withOpacity(
+      color: brightness ?  Colors.white.withOpacity(
           0.70) : Colors.black.withOpacity(
           0.70), // this is the main reason of transparency at next screen. I am ignoring rest implementation but what i have achieved is you can see.
     );

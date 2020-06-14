@@ -7,7 +7,7 @@ import 'package:flutterapp3/config/url.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/home.dart';
 import 'package:flutterapp3/likes.dart';
-import 'package:flutterapp3/products/HomeScreen.dart';
+import 'package:flutterapp3/products/homeScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 class User {

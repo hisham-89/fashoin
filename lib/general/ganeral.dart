@@ -31,7 +31,21 @@ class General {
     var moonLanding = DateTime.parse(date);
     return moonLanding.hour.toString() + ":" + moonLanding.minute.toString();
   }
+  pushRoute(context,route){
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => route)
+    );
+  }
+    onBackPressed(context,route)   {
 
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => route)
+    );
+      //Navigator.pop(context);
+      return true;
+  }
   static getDate(date, {time: false, year: false }) {
     if(date==null)
       return"";

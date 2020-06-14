@@ -30,7 +30,7 @@ class ProfileState extends State {
   final  Controller = TextEditingController();
   _select(Choice choice)
   {
-    debugPrint(choice.id);
+
     if (choice.id=="1")
       User().logout(context);
   }

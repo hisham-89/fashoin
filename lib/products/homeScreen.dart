@@ -1,14 +1,17 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterapp3/general/colors.dart';
-import 'package:flutterapp3/products/ProductScreen.dart';
-import 'package:flutterapp3/products/addEditProduct.dart';
+import 'package:flutterapp3/notification.dart';
+import 'package:flutterapp3/pages/about.dart';
+import 'package:flutterapp3/products/productScreen.dart';
 import 'package:flutterapp3/products/category.dart';
 import 'package:flutterapp3/products/shops.dart';
 import 'package:flutterapp3/store/product.dart';
 import 'package:flutterapp3/store/user.dart';
 import 'package:flutterapp3/user/profile.dart';
-import 'package:flutterapp3/user/shopUserForm.dart';
+import 'package:flutterapp3/products/shopUserForm.dart';
+import 'package:flutterapp3/user/setting.dart';
 import 'package:flutterapp3/user/welcomePage.dart';
 import 'package:getflutter/components/carousel/gf_carousel.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,12 +28,7 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
   List products;
   HomeScreenState( );
   static const String _title = 'Flutter Code Sample';
-  navigateRoute (context){
-//     Navigator.push(
-//         context,
-//         MaterialPageRoute(builder: (context) => LoginUser( ))
-//     );
-  }
+
   final List<String> imageList = [
     "https://cdn.pixabay.com/photo/2015/04/25/20/20/dress-739665_960_720.jpg",
     "https://image.shutterstock.com/image-photo/amused-beautiful-young-woman-pink-600w-594774212.jpg",
@@ -42,9 +40,7 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
   Future<void> initState()   {
     super.initState();
     debugPrint( 'isMyProducts');
-    if (products==null){
-      this.getJSONData();
-    }
+
   }
 
   Future<String> getJSONData() async {
@@ -138,16 +134,25 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
   Widget homeProducts(){
    return Container (
         child:  ListView.builder(shrinkWrap: true,  physics: NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(5.0),
+            padding: const EdgeInsets.all(0.0),
             itemCount:  products==null  ? 0 : products.length,
             itemBuilder: (context, index) {
               //  return _buildImageColumn(data[index]);
-              return ProductScreen().showProduct(products[index] ,context);
+              return ProductScreen(product: products[index]);//.showProduct(products[index] ,context);
             }
         ));
   }
+  Future<bool> _onBackPressed( ) async{
+    debugPrint('dddddddddddddddddd');
+    //Navigator.pop(context);
+    // exit(0);
+  }
   @override
   Widget build(BuildContext context) {
+
+    if (products==null){
+      this.getJSONData();
+    }
     PageController _pageController;
     int _page = 0;
     final textTheme = Theme.of(context).textTheme;
@@ -155,13 +160,13 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
     List drawerItems = [
       {
         "icon": Icons.add,
-        "name": "New Product",
-        'route':AddProductScreen()
+        "name": "New Shop",
+        'route':ShopUserFormScreen()
       },
       {
         "icon": Icons.store,
         "name": "My Shops",
-        'route':Shops(true)
+        'route':Shops(isMyShops: true )
       },
       {
         "icon": Icons.supervised_user_circle,
@@ -171,17 +176,19 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
       {
         "icon": Icons.settings,
         "name": "Setting    ",
+        "route":Setting()
       },
-      User().isLogedIn()? {
-        "icon": Icons.edit,
-        "name": "Edit My Informations",
-        'route':ShopUserFormScreen()
-
-      }:{
-        "name": "",},
+//      User().isLogedIn()? {
+//        "icon": Icons.edit,
+//        "name": "Edit My Informations",
+//        'route':ShopUserFormScreen()
+//
+//      }:{
+//        "name": "",},
       {
         "icon": Icons.info,
         "name": "About Us    ",
+        "route":About()
       },
       User().isLogedIn()? {
         "icon": Icons.exit_to_app,
@@ -190,21 +197,19 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
       }:{
         "name": "",},
     ];
-    return MaterialApp(
-        theme: ThemeData(
-          primaryColor:     MYColors.primaryColor(),
-          textTheme: TextTheme(
-            headline: GoogleFonts.tajawal(fontStyle: FontStyle.normal ,fontWeight: FontWeight.w700 ),
-            title: GoogleFonts.tajawal(fontStyle: FontStyle.normal ,fontWeight: FontWeight.w700 ),
-            body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
-
-          ),
-        ),
-        home: Scaffold(
+    return
+    new  WillPopScope(  //onWillPop:  _onBackPressed ,
+    child:
+        Scaffold(
             appBar: AppBar( // backgroundColor: Color(0xFFFF1728),
               title:   Text('Fashion'  ,  style:  GoogleFonts.tajawal( color: Colors.white,fontSize: 28) ),
               iconTheme: new IconThemeData(color: Colors.white),
-            ),
+           actions: <Widget>[
+             FlatButton.icon(onPressed: (){  Navigator.of(context).push(
+                 MaterialPageRoute(builder: (context) =>  NotificationsScreen())
+             );},  icon: Icon(Icons.notifications,size: 25,color: Colors.white,),label: Text(""),)
+           ], ),
+
             drawer: Drawer(
               child: ListView(
                 children: <Widget>[
@@ -225,7 +230,7 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
                           ]
                       )
                   ), User().getUser()!=null?Container(padding: EdgeInsets.all(  2),
-                      decoration: BoxDecoration(color: MYColors.grey()),
+                      decoration: BoxDecoration(color: MYColors.grey1()),
                       child:   ListTile(
                           leading:Image  ( width: 50,height: 150,
                             image: AssetImage('assets/images/user-profile.png'),
@@ -287,24 +292,32 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
             ),
             body: SingleChildScrollView(child:
 
-            Container(color: MYColors.grey(),
+            Container( color: MYColors.grey(),
                 //padding: const EdgeInsets.fromLTRB(0.0,10,0,10),
                 child: Align(
-                  child: Column(  crossAxisAlignment: CrossAxisAlignment.end,
+                  child: Column(  crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Container(
-                        color: Colors.white,height: 50,
+                      Container(decoration: BoxDecoration(   color: Colors.white,
+                        boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                      ),
+                      height: 50,
                         child: Row(
                           children: <Widget>[
                             Expanded(flex:1,
                                 child:
                                 Container(padding: const EdgeInsets.fromLTRB(0.0,15,0,15),
-                                  decoration: BoxDecoration(border: Border(right: BorderSide(width: 1,color: MYColors.fontGreyTransparent())),  ) ,height: 50,
+                                  decoration: BoxDecoration(border: Border(right: BorderSide(width: 3,color: MYColors.fontGreyTransparent())),  ) ,height: 50,
                                   child:InkWell(onTap: (){
-
                                     Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => Shops( false))
+                                        MaterialPageRoute(builder: (context) => Shops( isMyShops: false))
                                     );},
                                     child:  Text("Stores"
                                       ,textAlign: TextAlign.center,
@@ -318,26 +331,41 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
                             ) ],
                         ),
                       ),
-                      GFCarousel(height: 480,
+                    Container(margin:EdgeInsets.only(top:5),padding: EdgeInsets.only(bottom: 15),
+                      color: Colors.white,
+                      child:
+                      Column(crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                           Container(child:Text('ADS',style: TextStyle(fontSize: 25 ,), ) ,padding: EdgeInsets.only(left: 10,top:10),) , Divider(),
+                      GFCarousel(height: 400,
                         items: imageList.map(
                               (url) {
                             return
                               Container(
                                 child: Column(
                                   children: <Widget>[
-                                    Container(
-                                        height: 30,  margin: EdgeInsets.only(left:30.0,right: 30,top:20),
-                                        decoration: new BoxDecoration(color: MYColors.primaryColor(),
-                                            borderRadius:BorderRadius.only( topRight: new Radius.circular(10),topLeft: new Radius.circular(10) )
-                                        ),child:Container( padding: EdgeInsets.fromLTRB(0,4,0,0), width: double.infinity, child: Text("4 Remaining" ,textAlign: TextAlign.center  ,
-                                        style: TextStyle(color: Colors.white,fontSize: 20) ) , )),
+//                                    Container(
+//                                        height: 30,  margin: EdgeInsets.only(left:30.0,right: 30,top:20),
+//                                        decoration: new BoxDecoration(color: MYColors.primaryColor(),
+//                                            borderRadius:BorderRadius.only( topRight: new Radius.circular(10),topLeft: new Radius.circular(10) )
+//                                        ),
+//                                        child:Container( padding: EdgeInsets.fromLTRB(0,4,0,0), width: double.infinity, child: Text("4 Remaining" ,textAlign: TextAlign.center  ,
+//                                        style: TextStyle(color: Colors.white,fontSize: 20) ) , )),
                                     Container(height: 400,
                                         decoration: new BoxDecoration(
+                                        boxShadow: [
+                                        BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 1,
+                                      blurRadius: 2,
+                                      offset: Offset(3, 3), // changes position of shadow
+                                    ),
+                                  ],
                                             borderRadius:BorderRadius.all(new Radius.circular(20))
                                         ),
                                         margin: EdgeInsets.only(left:8.0,right: 8,top: 0),
                                         child:
-                                        Container(  decoration: new BoxDecoration(color: Colors.white,
+                                        Container(  decoration: new BoxDecoration(color: MYColors.grey1(),
                                             borderRadius:BorderRadius.all(new Radius.circular(10))
                                         ),
                                             child:Column(
@@ -391,12 +419,21 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
 //                            index;
 //                          });
                         },
+                      ),] ),),
+                      Divider(),
+                      Container(color: Colors.white,width: double.infinity,
+                        child:  Text('Last Collections',style: TextStyle(fontSize: 25 ,), ),
+                       // margin: EdgeInsets.only(left:15,top:15),
+                        padding: EdgeInsets.only(bottom: 11,left: 10,top:10),
                       ),
-                      products!=null&& products.length!=0 ? homeProducts():Container(),
+                    //  Divider(),
+                      Container(child: products!=null&& products.length!=0 ? homeProducts():Container()
+                          ,padding: EdgeInsets.only(left: 15,right: 15))
+
                     ],
                   ),
                 )))
         )
-    );
+     );
   }
 }

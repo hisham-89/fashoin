@@ -32,12 +32,19 @@ class Shop {
   addShop (data,context) async{
     var url = baseUrl+'shops';
     var response = await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
-    var a=1;
     return  jsonDecode( response.body);
   }
+  editShop (data,id,context) async{
+    var url = baseUrl+'shops/'+id;
+    var response = await http.put(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+
+    return  jsonDecode( response.body);
+  }
+
   getShop( id) async{
 
     var url = baseUrl+'shops/'+id;
+    debugPrint(url);
     var header=new General().authHeader();
     var response = await http.get(url,headers: header );
     var response1=jsonDecode( response.body);

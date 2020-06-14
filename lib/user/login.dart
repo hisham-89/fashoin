@@ -3,7 +3,7 @@ import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/home.dart';
-import 'package:flutterapp3/products/HomeScreen.dart';
+import 'package:flutterapp3/products/homeScreen.dart';
 import 'package:flutterapp3/store/user.dart';
 import 'signup.dart';
 import 'package:google_fonts/google_fonts.dart';

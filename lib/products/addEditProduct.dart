@@ -6,56 +6,83 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_multiselect/flutter_multiselect.dart';
 import 'package:flutterapp3/config/icons.dart';
-import 'package:flutterapp3/general/Alert.dart';
+import 'package:flutterapp3/general/alert.dart';
+import 'package:flutterapp3/general/Loading.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/home.dart';
-import 'package:flutterapp3/products/HomeScreen.dart';
+import 'package:flutterapp3/products/homeScreen.dart';
+import 'package:flutterapp3/products/productScreen.dart';
+import 'package:flutterapp3/products/productDetails.dart';
 import 'package:flutterapp3/store/category.dart';
 import 'package:flutterapp3/store/product.dart';
 import 'package:flutterapp3/uploadImages.dart';
 import 'package:image_picker/image_picker.dart';
 
 
-class AddProductScreen extends StatelessWidget {
-  String shopId;
-  AddProductScreen({this.shopId});
-  @override
-  Widget build(BuildContext context) {
-    return new    MyHomePage(title: 'Add product',shopId:this.shopId)
-    ;
-  }
-}
+//class AddProductScreen extends StatelessWidget {
+//  String shopId;
+//  AddProductScreen({this.shopId});
+//  @override
+//  Widget build(BuildContext context) {
+//    return new    MyHomePage(title: 'Add product',shopId:this.shopId)
+//    ;
+//  }
+//}
 
-class MyHomePage extends StatefulWidget {
+class AddProductScreen extends StatefulWidget {
   String shopId;
-  MyHomePage({Key key, this.title ,this.shopId}) : super(key: key);
+  String productId;
+  AddProductScreen({Key key, this.title ,this.shopId,this.productId }) : super(key: key);
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState(this.shopId);
+  _MyHomePageState createState() => new _MyHomePageState(this.shopId,this.productId );
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<AddProductScreen> {
   String shopId;
-  _MyHomePageState(this.shopId);
+  String productId="";
+  _MyHomePageState(this.shopId,this.productId );
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-
+  dynamic  editProduct =null;
   String _category = '1';
+  bool isLoading=false;
   List  colors =[];
   List productColors;
   bool visible=false;
   final titleController=TextEditingController();
-  final facebookController=TextEditingController();
   final priceController=TextEditingController();
   final detailsController=TextEditingController();
   dynamic categories=[];
   dynamic shopCategories=[];
+  Future getProduct() async {
+
+    var res= await Product().getProductsDetails( productId);
+    print(res);
+    setState(() {
+      editProduct=res;
+
+      titleController.text=res['name'];
+      priceController.text=res['price'].toString();
+      detailsController.text=res['details'];
+      if(res['category_id'].toString()!=null|| res['category_id'].toString()!=0)
+      _category =res['category_id'].toString();
+      productColors=[1,2];//res['colors'];
+    });
+
+  }
+  Future<void> initState()   {
+    super.initState();
+    if(this.productId!="")
+      getProduct();
+  }
   Future getShopsCategories() async {
 
     var res= await Category().getShopsCategories(0);
     setState(() {
       shopCategories=res;
-      _category=shopCategories[0]['id'];
+      if(this.productId=="")
+      _category=shopCategories[0]['id'].toString();
     });
 
   }
@@ -71,11 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Getting value from Controller
     String title= titleController.text;
-    String facebook= facebookController.text;
     String price= priceController.text;
     String details= detailsController.text;
-
-    if (title=='' || images64.length==0 ) {
+    if (title==''  ) {
       setState(() {
         visible = false;
       });
@@ -84,19 +109,18 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       visible = true ;
     });
-
-    // SERVER register API UR
-
-    // Store all data with Param Name.
     var data = {'price': price, 'name': title, 'category_id' : _category, 'colors':productColors,
       'shop_id':shopId.toString(),//'shopCategories':categories,
       'details':details ,'images':images64,  };
     log('data: $data');
     // Starting Web API Call.
     var product=new Product();
-    var response = await product.addProduct(data,context);// await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
-    //  log('data: $response');
-    // Getting Server response into variable.
+    var response ;
+    if(productId==''|| productId==null)
+        response = await product.addProduct(data,context);// await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+    else
+        response = await product.editProduct(data,productId,context);// await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+
     Map<String, dynamic> bodyContent =  response;
     setState(() {
       visible = false ;
@@ -104,15 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
     // If the Response Message is Matched.
     String message="";
     if(bodyContent['success'] )
-    {
-      Alert(context,"Successfully  updated shop details",HomeScreen());
-      log('data11: $bodyContent');
-      // Hiding the CircularProgressIndicator
-    }
-    else if(bodyContent['error']!=''){
+      {   if(productId==''||productId==null)
+             productId=response['data']['id'].toString();
+      Alert(context,"Successfully  updated shop details",ProductsDetailsScreen (id:productId,));
 
-      // If Email or Password did not Matched.
-      // Hiding the CircularProgressIndicator.
+     }
+    else if(bodyContent['error']!=''){
       setState(() {
         visible = false;
       });
@@ -147,8 +168,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List images64=[];
   final picker = ImagePicker();
    deleteImage(int index){
-     print('dddd');print(index.toString()+'ssss');
-
      setState(() {
        images64.removeAt(index);
        _images.removeAt(index);
@@ -210,9 +229,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return new Scaffold(resizeToAvoidBottomPadding: false,
       appBar: new AppBar(
-        title: new Text(widget.title),
+        title: new Text( "Edit "),
       ),
-      body: new SingleChildScrollView(child:
+      body:
+      visible?ProgressDialogPrimary() :
+      new SingleChildScrollView(child:
       Column(children: <Widget>[
         SafeArea(
             top: false,
@@ -292,10 +313,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         autovalidate: true,
                        // titleText: 'Available Colors',
                         validator: (value) {
+                          debugPrint('dddddddddd');
+                         // value=[1,2];
                           if (value == null) {
                             return'';// 'Please select one or more option(s)';
                           }
                           try{
+                            print(value);
                             setState(() {
                               productColors=value;
                             });}
@@ -304,17 +328,17 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         errorText: 'Please select one or more option(s)',
                         dataSource: colors,
+                        value: productColors,
                         textField: 'name',
                         valueField: 'id',
                         filterable: true,
                         required: false,
-                        value: null,
+                        //initialValue: 1,
+
                         onSaved: (value) {
                           setState(() {
                           });
-
                          // print('The value is $value');
-
                         }
                     ),
                     Text('Category' ,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
@@ -369,34 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-//  Widget showImage() {
-//    return FutureBuilder<File>(
-//      future: _images,
-//      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-//        if (snapshot.connectionState == ConnectionState.done &&null != snapshot.data)
-//             {
-//          var tmpFile = snapshot.data;
-//          base64Image = base64Encode(snapshot.data.readAsBytesSync());
-//          return Flexible(
-//            child: Image.file(
-//              snapshot.data,
-//              fit: BoxFit.fill,
-//            ),
-//          );
-//        } else if (null != snapshot.error) {
-//          return const Text(
-//            'Error Picking Image',
-//            textAlign: TextAlign.center,
-//          );
-//        } else {
-//          return const Text(
-//            'No Image Selected',
-//            textAlign: TextAlign.center,
-//          );
-//        }
-//      },
-//    );
-//  }
+
   Widget imageUpload () {
     var size = MediaQuery.of(context).size;
     final double itemHeight = (size.height - kToolbarHeight - 24) / 2;

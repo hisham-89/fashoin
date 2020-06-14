@@ -12,29 +12,16 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:date_util/date_util.dart';
 
-class NotificationsScreen extends StatelessWidget {
 
-  @override
-  Widget build(BuildContext context) {
 
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(   primaryColor:     MYColors.primaryColor(),textTheme: TextTheme(
-        body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
-      ),
-      ),
-      home: MyHomePage(title: 'Notifications' ),
-    );
-  }
-}
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class NotificationsScreen extends StatefulWidget {
+  NotificationsScreen({Key key, this.title}) : super(key: key);
   final String title;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<NotificationsScreen> {
 
   List data;
   // Function to get the JSON data
@@ -64,11 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title,style: TextStyle(color: Colors.white), ),
+        title: Text( "Notifications",style: TextStyle(color: Colors.white), ),
       ),
       body:
       Container( decoration: BoxDecoration(color: MYColors.grey(),
-
       ),
         child:_buildListView()
         , ),
@@ -118,15 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: SafeArea(
                   child: ListTile(
                     leading:
-                   Container  (width: 50,height: 50,
-                    decoration: BoxDecoration(color: MYColors.grey1(),
-                        borderRadius: BorderRadius.circular(50.0),
-                        image: DecorationImage(
-                            image: CachedNetworkImageProvider(item),
-                            fit: BoxFit.fitWidth
+                    Container  (width: 50,height: 50,
+                        decoration: BoxDecoration(color: MYColors.grey1(),
+                            borderRadius: BorderRadius.circular(50.0),
+                            image: DecorationImage(
+                                image: CachedNetworkImageProvider(item),
+                                fit: BoxFit.fitWidth
+                            )
                         )
-                    )
-                )  ,
+                    )  ,
                     title: Text('FilledStacks'),
                     subtitle: Text('Thanks for checking out my tutorial'),
                     trailing: IconButton(

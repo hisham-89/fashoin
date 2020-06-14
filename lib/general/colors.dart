@@ -8,7 +8,7 @@ class MYColors{
   }
 
   static Color grey(){
-    return Color(0xffd2d0d7);
+    return Color(0xffe1e1e3);
   }
   static Color grey1(){
     return Color(0xfff6f6f6);

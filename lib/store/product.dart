@@ -24,12 +24,19 @@ class Product {
 
     return  jsonDecode( response.body);
   }
+  editProduct (data,id,context) async{
+    var url = baseUrl+'products/'+id;
+     debugPrint('ffff');
+    var response = await http.put(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
+    var a=1;
+
+    return  jsonDecode( response.body);
+  }
+
   getColors ( ) async{
     var url = baseUrl+'colors';
     var header=new General().authHeader();
-
     var response = await http.get(url,headers: header );
-
     var response1=jsonDecode( response.body);
     if (response1['success']){
       return response1['data']  ;
@@ -41,18 +48,15 @@ class Product {
 
   getProductsDetails( id) async{
 
-    var url = baseUrl+'products/getReplies?parent_id='+id;
+    var url = baseUrl+'products/'+id;
     var header=new General().authHeader();
-    var response = await http.post(url,headers: header );
+    var response = await http.get(url,headers: header );
     var response1=jsonDecode( response.body);
 
     if (response1['success']){
-
       debugPrint( url);
-
       return response1['data']  ;
     }
-
     else
       return   0;
 
@@ -80,6 +84,19 @@ class Product {
     else
       return   0;
   }
+  delete ( id) async{
 
+    var url = baseUrl+'products/'+id;
+    var header=new General().authHeader();
+    var response = await http.delete(url,headers: header );
+    var response1=jsonDecode( response.body);
 
+    if (response1['success']){
+
+      return response1['data']  ;
+    }
+    else
+      return   0;
+
+  }
 }

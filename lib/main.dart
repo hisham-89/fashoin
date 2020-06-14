@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/home.dart';
 import 'package:flutterapp3/user/login.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,13 +8,13 @@ import 'package:http/http.dart' as http;
 import 'dart:developer';
 void main() => runApp(
     MaterialApp(
-      theme: ThemeData(  ),
+      theme: ThemeData(   primaryColor:     MYColors.primaryColor(),textTheme: TextTheme(
+        body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
+      ),
+      ),
       home: Home(),
       initialRoute: '/',
-      routes: {
-     //   '/' :(context)=>ProfileScreen(),
-        '/register' :(context)=>ProfileScreen()
-      },
+
     )
 );
 

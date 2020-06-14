@@ -18,27 +18,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:date_util/date_util.dart';
 
-class Shops extends StatelessWidget {
-  bool isMyShops;
 
-  // This widget is the root of your application.
-  Shops(this.isMyShops);
-  @override
-  Widget build(BuildContext context) {
 
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(   primaryColor:     MYColors.primaryColor(),textTheme: TextTheme(
-        body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
-      ),
-      ),
-      home: MyHomePage(title: isMyShops?'My Shops':'Shops',isMyShops:this.isMyShops ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title,this.isMyShops}) : super(key: key);
+class Shops extends StatefulWidget {
+  Shops({Key key, this.title,this.isMyShops}) : super(key: key);
 
   final String title;
   final bool isMyShops;
@@ -46,22 +29,22 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState(isMyShops);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<Shops> {
+
     bool isMyShops=false;
-  _MyHomePageState(this.isMyShops);
-  List data=null;
+    _MyHomePageState(this.isMyShops);
+    List data=null;
 
   // Function to get the JSON data
   Future<String> getJSONData() async {
-
     var response =await Shop().getShops(isMyShops) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
-
     setState(() {
       // Get the JSON data
       data  = response;
     });
     return "Successfull";
   }
+
   final List<String> imageList = [
     "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_KZalW8BX3-_Oez9mS5b1cEuqxFYcdu3OEeWbzWWAbKUKfLR2&usqp=CAU",
     "https://blog.printsome.com/wp-content/uploads/zara-1.jpg",
@@ -72,12 +55,9 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(onWillPop:() {
-      Navigator.of(context).pop();
-      },
-        child: Scaffold(
+    return   Scaffold(
       appBar: AppBar(
-        title: Text(widget.title,style: TextStyle(color: Colors.white), ),
+        title: Text(isMyShops?'My Shops':'Shops',style: TextStyle(color: Colors.white), ),
       ),
       body:
       Container( decoration: BoxDecoration(color: MYColors.grey(),
@@ -85,7 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
         child:_buildListView()
         , ),
-    ));
+    )
+     ;
   }
 
   Widget _buildListView() {
