@@ -73,6 +73,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
   PanelController _pc = new PanelController();
   bool uploadImage=false;
   bool uploadImage2=false;
+  bool visible=true;
   bool isFollowed=false;
   final picker = ImagePicker();
   final List<String> imageList = [
@@ -96,10 +97,13 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
     {
       this.id=shop['id'].toString();
     }
-    if(shop['is_followed'].length>0 )
+    if(shop!=null&&shop['is_followed'].length>0 )
       setState(() {
         isFollowed=true;
       });
+    setState(() {
+      visible=false;
+    });
 
     tabList.add(new Tab(text:'Info',));
     tabList.add(new Tab(text:'Products',));
@@ -224,11 +228,10 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
     PopUp(context, child);
     _pc.close();
   }
-  follow(){
-    var followId='0';
-    if(shop['is_followed'].length>0 )
-       followId=shop['is_followed'][0]['id'].toString();
-    Follow().followShop({'shop_id':shop['id'] ,"user_id":User().getUserId()}, isFollowed,followId);
+  follow() async{
+
+   await Follow().followShop({'shop_id':shop['id'] ,"user_id":User().getUserId()}, isFollowed,shop['id'].toString());
+
     setState(() {
       isFollowed=!isFollowed;
     });
@@ -238,7 +241,8 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
     var size = MediaQuery.of(context).size;
 
     return
-      new  WillPopScope(onWillPop: _onBackPressed,
+      new
+      WillPopScope(//onWillPop: _onBackPressed,
           child:new
           Scaffold(
               backgroundColor: Colors.grey.shade300,
@@ -286,12 +290,12 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                           Center(
                             child:ListTile(onTap: (){getImage('cover_image');},
                               title:
-                              new Row(children: <Widget>[
+                              visible?new Row(children: <Widget>[
                                 Icon(Icons.photo),
                                 new Text("Add Cover Image",
                                   style: new TextStyle(
                                       fontSize: 18.0),)
-                              ], mainAxisAlignment: MainAxisAlignment.center,),
+                              ], mainAxisAlignment: MainAxisAlignment.center,):Container(),
                               //  leading: Icon(Icons.photo),
                               contentPadding: EdgeInsets.only(left: 4),)
                             ,),
@@ -344,7 +348,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                                           children: <Widget>[
                                             Expanded(child: Column(
                                               children: <Widget>[
-                                                Text(shop['followed_count']!=null? shop['followed_count'].toString():"0"),
+                                                Text(shop!=null&&shop['followed_count']!=null? shop['followed_count'].toString():"0"),
                                                 Text("Likes" ,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)
                                               ],
                                             ),),
@@ -356,7 +360,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                                             ),),
                                             Expanded(child: Column(
                                               children: <Widget>[
-                                                Text(shop['FollowedCount']!=null? shop['FollowedCount'].toString():"0"),
+                                                Text(shop!=null&&shop['FollowedCount']!=null? shop['FollowedCount'].toString():"0"),
                                                 Text("Favourites",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)
                                               ],
                                             ),),

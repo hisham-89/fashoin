@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 class Product {
 
   final content;
+  final url= baseUrl+'products';
   Product({this.content });
 
   factory Product.fromJson(Map<String, dynamic> json) {

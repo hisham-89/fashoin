@@ -56,13 +56,17 @@ class Shop {
       return   0;
 
   }
-  getShops ( isMyShops) async{
+
+  getShops ( isMyShops,{searchByName}) async{
 
 
     var user_id=User().getUserId();
     String url;
     if(isMyShops){
       url = baseUrl+'shops?search=user_id:$user_id';
+    }
+    else if (searchByName!=null){
+      url = baseUrl+'shops?search=$searchByName&searchFields=name:like';
     }
     else
          url = baseUrl+'shops';

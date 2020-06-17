@@ -15,8 +15,10 @@ import 'package:flutterapp3/products/homeScreen.dart';
 import 'package:flutterapp3/products/addEditProduct.dart';
 
 import 'package:flutterapp3/products/shopScreen.dart';
+import 'package:flutterapp3/store/Like.dart';
 import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/product.dart';
+import 'package:flutterapp3/store/user.dart';
 
 import 'package:getflutter/components/carousel/gf_carousel.dart';
 
@@ -56,6 +58,7 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   var product;
   bool visible=false;
   String id;
+  var isliked=false;
   _ProductsDetailsScreenPageState(this.product,this.id);
   List data;
     List<Choice> choices = const <Choice>[
@@ -79,6 +82,10 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
 
       });
     }
+    if(product !=null && product['is_liked'].length>0 ){
+      setState(() {
+        isliked=true;
+      });}
     setState(() {
 
       visible=false;
@@ -172,6 +179,12 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
         )
     );
   }
+  likeProduct() async{
+    setState(() {
+      isliked=!isliked;
+    });
+    var res= await Like().likeProduct({'product_id':product['id'] ,"user_id":User().getUserId()}, isliked,product['id'].toString());
+  }
   final image =  "https://image.shutterstock.com/image-photo/beautiful-tender-girl-silk-top-600w-1081362410.jpg";
   Widget build(BuildContext context) {
     return Scaffold( backgroundColor: Colors.grey.shade300,
@@ -237,7 +250,8 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
                                   fontWeight: FontWeight.bold
                               ),),
                             )),
-                            Align(alignment: Alignment.bottomRight, child: IconButton(icon: Icon( Icons.favorite_border,size: 32, ), onPressed: () {},),)
+                            Align(alignment: Alignment.bottomRight, child:
+                                  IconButton(icon: Icon(isliked? Icons.favorite:Icons.favorite_border  ,size: 30 ),onPressed: (){likeProduct();},))
                           ]),
 
                       Row(children: <Widget>[
@@ -390,6 +404,15 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   void initState() {
     super.initState();
     // Call the getJSONData() method when the app initializes
-    this.getJSONData();
+    if (product == null){
+      this.getJSONData();
+    }else
+    {
+      this.id=product['id'].toString();
+    }
+    if(product !=null && product['is_liked'].length>0 ){
+      setState(() {
+        isliked=true;
+      });}
   }
 }

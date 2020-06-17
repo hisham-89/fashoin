@@ -6,6 +6,7 @@ import 'package:flutterapp3/notification.dart';
 import 'package:flutterapp3/pages/about.dart';
 import 'package:flutterapp3/products/productScreen.dart';
 import 'package:flutterapp3/products/category.dart';
+import 'package:flutterapp3/products/searchScreen.dart';
 import 'package:flutterapp3/products/shops.dart';
 import 'package:flutterapp3/store/product.dart';
 import 'package:flutterapp3/store/user.dart';
@@ -202,12 +203,20 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
     child:
         Scaffold(
             appBar: AppBar( // backgroundColor: Color(0xFFFF1728),
+            titleSpacing: 0,
+
               title:   Text('Fashion'  ,  style:  GoogleFonts.tajawal( color: Colors.white,fontSize: 28) ),
               iconTheme: new IconThemeData(color: Colors.white),
-           actions: <Widget>[
-             FlatButton.icon(onPressed: (){  Navigator.of(context).push(
+           actions: <Widget>[Padding(
+             child:  GestureDetector(onTap: (){  Navigator.of(context).push(
+               MaterialPageRoute(builder: (context) =>  SearchScreen())
+           );},  child: Icon(Icons.search,size: 25,color: Colors.white,) ),padding: EdgeInsets.only(left: 15,right: 5),)
+            ,
+
+    Padding(
+    child: GestureDetector(onTap: (){  Navigator.of(context).push(
                  MaterialPageRoute(builder: (context) =>  NotificationsScreen())
-             );},  icon: Icon(Icons.notifications,size: 25,color: Colors.white,),label: Text(""),)
+             );},  child: Icon(Icons.notifications,size: 25,color: Colors.white,) ),padding: EdgeInsets.only(left: 15,right: 15))
            ], ),
 
             drawer: Drawer(

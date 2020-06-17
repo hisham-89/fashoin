@@ -18,7 +18,76 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:date_util/date_util.dart';
 
+class ShopComponent{
 
+    Widget  buildRow(dynamic item,context) {
+
+    return
+      ConstrainedBox(constraints: BoxConstraints(maxHeight: 300),
+          child:  InkWell( onTap: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>ShopScreen( shop: item )) );
+          },
+              child:
+              Container(height: 100,
+                  //  padding: const EdgeInsets.fromLTRB(0, 9, 0, 9),
+                  margin: const EdgeInsets.fromLTRB(9, 9, 9, 0),
+                  decoration:new  BoxDecoration(color: Colors.white,
+                    borderRadius: new BorderRadius.all (new Radius.circular(10.0)),
+                  ) ,
+
+                  child:
+                  Container(   child:
+                  Row(children: <Widget>[
+                    Container  ( width: 100,height: 200,
+                        decoration: BoxDecoration(color: MYColors.grey1(),
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image: item['profile_image']!=null? General.mediaUrl(item['profile_image']) :AssetImage('assets/images/fashionLogo.jpeg'),
+                                fit: BoxFit.fitWidth
+                            )
+                        )
+                    ),
+                    Container(  padding: const EdgeInsets.all(10 ),
+                        child:Column(mainAxisAlignment: MainAxisAlignment.spaceAround,crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              //   Image  ( width: 50 , image: AssetImage('assets/images/dress3.png')),
+                              Container(
+
+                                  child:Text(  item['name'] ,style:TextStyle(fontSize: 21,fontWeight: FontWeight.bold)//(item['title'].length >=20 )?item['title'].substring(0,20) :item['title']
+                                  )
+                              )
+                              ,  Container(    height: 1, color:Colors.black ,width:200,) ,
+                              Container(
+                                  child: Row(
+                                    children: <Widget>[
+                                      //  SizedBox(width: 20.0,),
+                                      Icon(Icons.star, color: Colors.yellow),
+                                      Icon(Icons.star, color: Colors.yellow),
+                                      Icon(Icons.star, color: Colors.yellow),
+                                      Icon(Icons.star, color: Colors.yellow),
+                                      Icon(Icons.star, color: Colors.yellow),
+                                      // SizedBox(width: 5.0,),
+//                          Text("5.0 stars", style: TextStyle(
+//                              color: Colors.grey,
+//                              fontSize: 14.0
+//                          ))
+                                    ],
+                                  )
+                              )
+                            ]
+                        )
+                    )
+                  ],)
+
+                  )
+              )));
+
+  }
+
+
+
+
+}
 
 class Shops extends StatefulWidget {
   Shops({Key key, this.title,this.isMyShops}) : super(key: key);
@@ -78,7 +147,7 @@ class _MyHomePageState extends State<Shops> {
           itemCount: data == null ? 0 : data.length,
           itemBuilder: (context, index) {
             //  return _buildImageColumn(data[index]);
-            return _buildRow(data[index]);
+            return ShopComponent().buildRow(data[index],context);
           }
       )
     ;
@@ -91,70 +160,7 @@ class _MyHomePageState extends State<Shops> {
     return moonLanding.day.toString() + " " + monthName+  year
         + " at " + moonLanding.hour.toString() + ":" + moonLanding.minute.toString();
   }
-  Widget _buildRow(dynamic item) {
-    var newFormat = DateFormat("yyyy-MM-dd hh:mm");
-    const IconData favorite = IconData(0xe87d, fontFamily: 'MaterialIcons');
-    return
-      ConstrainedBox(constraints: BoxConstraints(maxHeight: 300),
-          child:  InkWell( onTap: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>ShopScreen( shop: item )) );
-             },
-           child:
-          Container(height: 100,
-              //  padding: const EdgeInsets.fromLTRB(0, 9, 0, 9),
-              margin: const EdgeInsets.fromLTRB(9, 9, 9, 0),
-              decoration:new  BoxDecoration(color: Colors.white,
-                borderRadius: new BorderRadius.all (new Radius.circular(10.0)),
-              ) ,
 
-              child:
-              Container(   child:
-              Row(children: <Widget>[
-                Container  ( width: 100,height: 200,
-                    decoration: BoxDecoration(color: MYColors.grey1(),
-                        borderRadius: BorderRadius.circular(10.0),
-                        image: DecorationImage(
-                            image: item['profile_image']!=null? General.mediaUrl(item['profile_image']) :AssetImage('assets/images/fashionLogo.jpeg'),
-                            fit: BoxFit.fitWidth
-                        )
-                    )
-                ),
-                Container(  padding: const EdgeInsets.all(10 ),
-                    child:Column(mainAxisAlignment: MainAxisAlignment.spaceAround,crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          //   Image  ( width: 50 , image: AssetImage('assets/images/dress3.png')),
-                          Container(
-
-                              child:Text(  item['name'] ,style:TextStyle(fontSize: 21,fontWeight: FontWeight.bold)//(item['title'].length >=20 )?item['title'].substring(0,20) :item['title']
-                              )
-                          )
-                          ,  Container(    height: 1, color:Colors.black ,width:200,) ,
-                          Container(
-                              child: Row(
-                                children: <Widget>[
-                                  //  SizedBox(width: 20.0,),
-                                  Icon(Icons.star, color: Colors.yellow),
-                                  Icon(Icons.star, color: Colors.yellow),
-                                  Icon(Icons.star, color: Colors.yellow),
-                                  Icon(Icons.star, color: Colors.yellow),
-                                  Icon(Icons.star, color: Colors.yellow),
-                                  // SizedBox(width: 5.0,),
-//                          Text("5.0 stars", style: TextStyle(
-//                              color: Colors.grey,
-//                              fontSize: 14.0
-//                          ))
-                                ],
-                              )
-                          )
-                        ]
-                    )
-                )
-              ],)
-
-              )
-          )));
-
-  }
   @override
   void initState() {
     super.initState();

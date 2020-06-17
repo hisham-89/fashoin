@@ -1,13 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutterapp3/general/alert.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/home.dart';
 import 'package:flutterapp3/products/homeScreen.dart';
 import 'package:flutterapp3/products/shopScreen.dart';
+import 'package:flutterapp3/store/follow.dart';
 import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/shop.dart';
+import 'package:flutterapp3/store/user.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -30,7 +33,7 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
   // Function to get the JSON data
   Future<String> getJSONData() async {
 
-    var response =await Shop ().getShops( false) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
+    var response =await Follow ().getMyFollowingShops(    ) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
 
     setState(() {
       // Get the JSON data
@@ -39,7 +42,7 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
     return "Successfull";
   }
   Future<bool> _onBackPressed( ) async{
-    debugPrint('fffffffff');
+
    // General().onBackPressed(context, Home());
 
   }
@@ -70,31 +73,42 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
           itemCount: data == null ? 0 : data.length,
           itemBuilder: (context, index) {
             //  return _buildImageColumn(data[index]);
-            return _buildRow(data[index]);
+            return _buildRow(data[index],index);
           }
       )
     ;
   }
-  Future<bool> onDelete() async{
-    return showDialog(
+    onDelete(shopId,index)   {
+
+    showDialog(
       context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit an App'),
-        actions: <Widget>[
-          new GestureDetector(
-            onTap: () => Navigator.of(context).pop(false),
-            child: Text("NO"),
-          ),
-          SizedBox(height: 16),
-          new GestureDetector(
-            onTap: () => Navigator.of(context).pop(true),
-            child: Text("YES"),
-          ),
-        ],
-      ),
-    ) ??
-        false;
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text(  "Are you sure to un follow"),
+          actions: <Widget>[
+            FlatButton(
+              child: new Text("OK"),
+              onPressed: () async {
+               var  res= await  Follow().followShop({'shop_id':shopId,"user_id":User().getUserId()}, true,shopId);
+               if (res !=null &&res.length>0){
+                 data.removeAt(index);
+                 setState(() {
+                   data:data;
+                 });
+                }
+                Navigator.of(context).pop();
+
+              },
+            ),   FlatButton(
+              child: new Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            )
+          ],
+        );
+      },
+    );
   }
   getDate(date){
     var dateUtility = new DateUtil();
@@ -104,12 +118,12 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
     return moonLanding.day.toString() + " " + monthName+  year
         + " at " + moonLanding.hour.toString() + ":" + moonLanding.minute.toString();
   }
-  Widget _buildRow(dynamic item) {
+  Widget _buildRow(dynamic item,index) {
     var newFormat = DateFormat("yyyy-MM-dd hh:mm");
     const IconData favorite = IconData(0xe87d, fontFamily: 'MaterialIcons');
     return
       ConstrainedBox(constraints: BoxConstraints(maxHeight: 200),
-          child:  InkWell( onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>ShopPage(shop:item)) );}, child:
+          child:  InkWell( onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>ShopPage(id:item['shop']['id'].toString())) );}, child:
           Container(height: 80,
               //  padding: const EdgeInsets.fromLTRB(0, 9, 0, 9),
               margin: const EdgeInsets.fromLTRB(9, 9, 9, 0),
@@ -128,16 +142,16 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
                         decoration: BoxDecoration(color: MYColors.grey1(),
                             borderRadius: BorderRadius.circular(50.0),
                             image: DecorationImage(
-                                image: General.mediaUrl (item['profile_image']),
+                                image: General.mediaUrl (item['shop']['profile_image']),
                                 fit: BoxFit.cover
                             )
                         )
                     )  ,
-                    title: Text('FilledStacks'),
+                    title: Text( item['shop']['name']),
                   //  subtitle: Text('Thanks for checking out my tutorial'),
                     trailing: IconButton(
                         icon: Icon(Icons.close),
-                        onPressed: () {onDelete();
+                        onPressed: () {onDelete( item['shop']['id'].toString() ,index);
                           //OverlaySupportEntry.of(context).dismiss();
                         }),
                   ),

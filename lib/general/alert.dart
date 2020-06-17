@@ -38,7 +38,7 @@ class Alert{
           title: new Text(  success),
           actions: <Widget>[
             FlatButton(
-              child: new Text("OK"),
+              child: new Text("OK"+id),
               onPressed: () {
                 BaseStore(obj).delete(id);
                 Navigator.of(context).pop();
@@ -48,7 +48,7 @@ class Alert{
                 );
               },
             ),   FlatButton(
-              child: new Text("cancel"),
+              child: new Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },

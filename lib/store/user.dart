@@ -29,7 +29,7 @@ class User {
     getUserId()
   {
     var user=storage.getItem('user')  ;
-    return user!=null?user['id']:null;
+    return user!=null?user['id'].toString():null;
    }
 
   Future<String>   _getDeviceId()  async {

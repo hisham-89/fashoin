@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutterapp3/MessageDetails.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
+import 'package:flutterapp3/products/productDetails.dart';
+import 'package:flutterapp3/products/productScreen.dart';
+import 'package:flutterapp3/store/Like.dart';
 import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/user.dart';
 
@@ -44,15 +47,12 @@ class _MyHomePageState extends State<MyHomePage> {
   List data;
   // Function to get the JSON data
   Future<String> getJSONData() async {
-    var response1;
-    var message=new Message();
-    //   response1= await message.getMessages(   );
-    var header=new General().authHeader();
-    var response = await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
-    response1=jsonDecode( response.body);
+
+    var response =await Like ().getMyLikes(    ) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
+
     setState(() {
       // Get the JSON data
-      data  = response1;
+      data  = response;
     });
     return "Successfull";
   }
@@ -108,14 +108,21 @@ class _MyHomePageState extends State<MyHomePage> {
           child:
           ListTile(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MessageDetails(id:item['id'] ))
-                );
+            General.pushRoute(context, ProductsDetailsScreenPage (id:item['product']['id'].toString() ));
+
               },
-              leading:Image  ( width: 50,height: 150,
-                image: AssetImage('assets/images/dress2.png'),
+              leading:
+              Container  (width: 50,height: 50,
+                  decoration: BoxDecoration(color: MYColors.grey1(),
+                      borderRadius: BorderRadius.circular(50.0),
+                      image: DecorationImage(
+                          image: General.mediaUrl(item['product']['images'].length>0?item['product']['images'][0]['name']:null),
+                          fit: BoxFit.cover
+                      )
+                  )
               ),
+
+
               // title:  Text("From"+ item['title']  ),
               title:  Container(
                   child:Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         //   Image  ( width: 50 , image: AssetImage('assets/images/dress3.png')),
                         Container(
                             padding: const EdgeInsets.fromLTRB(9, 0, 9, 0),
-                            child:Text(   (item['title'].length >=20 )?item['title'].substring(0,20) :item['title'] )
+                            child:Text(   (item['product']['name'].length >=20 )?item['product']['name'].substring(0,20) :item['product']['name'] )
                         )
                         , Icon( favorite ,color: Colors.red ,size: 44 )
                         // Divider()

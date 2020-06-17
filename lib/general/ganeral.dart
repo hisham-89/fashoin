@@ -31,7 +31,7 @@ class General {
     var moonLanding = DateTime.parse(date);
     return moonLanding.hour.toString() + ":" + moonLanding.minute.toString();
   }
-  pushRoute(context,route){
+  static pushRoute(context,route){
     Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => route)

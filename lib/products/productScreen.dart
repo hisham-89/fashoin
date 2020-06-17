@@ -7,36 +7,52 @@ import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/products/productDetails.dart';
 import 'package:flutterapp3/store/Like.dart';
+import 'package:flutterapp3/store/product.dart';
 import 'package:flutterapp3/store/user.dart';
 import 'package:getflutter/components/carousel/gf_carousel.dart';
 class ProductScreen extends StatefulWidget {
 
   var product;
+  String id;
   @override
-  ProductScreenState createState() => ProductScreenState(this.product);
-  ProductScreen({Key key, this.product}) : super(key: key);
+  ProductScreenState createState() => ProductScreenState(this.product ,this.id);
+  ProductScreen({Key key, this.product ,this.id}) : super(key: key);
 
 }
 class ProductScreenState extends State<ProductScreen>  {
-  ProductScreenState(this.product);
+  ProductScreenState(this.product, this.id);
   var product;
+  String id;
   var isliked=false;
   
   likeProduct() async{
-    var followId='0';
-    if(product['is_liked']!=null&&product['is_liked'].length>0 )
-      followId=product['is_liked'][0]['id'].toString();
-     var res= await Like().likeProduct({'product_id':product['id'] ,"user_id":User().getUserId()}, isliked,followId);
-     setState(() {
+    setState(() {
       isliked=!isliked;
-      product['is_liked']=res;
     });
+     var res= await Like().likeProduct({'product_id':product['id'] ,"user_id":User().getUserId()}, isliked,product['id'].toString());
+  }
+  // Function to get the JSON data
+  Future<String> getJSONData() async {
+
+    var response = await  Product().getProductsDetails(this.id);
+    setState(() {
+      // Get the JSON data
+      product  = response;
+
+    });
+    return "Successfull";
   }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(product['is_liked']!=null && product['is_liked'].length>0 ){
+    if (product == null){
+      this.getJSONData();
+    }else
+    {
+      this.id=product['id'].toString();
+    }
+    if(product !=null && product['is_liked'].length>0 ){
       setState(() {
         isliked=true;
       });}
