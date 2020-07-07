@@ -126,11 +126,11 @@ class ProductScreenState extends State<ProductScreen>  {
                     Row(children: <Widget>[
                       Icon(Icons.favorite_border),
                       SizedBox(width: 5.0,),
-                      Text("20.2k"),
+                    //  Text(product['likes_count']),
                       //  SizedBox(width: 16.0,),
                       // Icon(Icons.comment),
                       //SizedBox(width: 5.0,),
-                       Text("2.2k"),
+                      Text( Product().getLikesCount( product['likes_count'] )),
                     ],),
                     SizedBox(height: 10.0,),
                     Text(product['details'] == null ? '':product['details'].length>20? product['details'].substring(0,20)+"..." :product['details'], textAlign: TextAlign.justify,)

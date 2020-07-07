@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp3/config/url.dart';
 import 'package:flutterapp3/general/colors.dart';
+import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/store/user.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share/share.dart';
@@ -72,7 +73,7 @@ class ProfileState extends State {
               children: <Widget>[
                 CircleAvatar(
                   radius: 80,
-                  backgroundImage: AssetImage('assets/images/user-profile.png'),
+                  backgroundImage: User().getUser()!=null?   General.mediaUrl(User().getUser()['profile_image']):AssetImage('assets/images/user-profile.png'),
                 ),
                 Container(padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                   child:     Text(

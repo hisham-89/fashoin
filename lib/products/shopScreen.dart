@@ -241,6 +241,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
     var size = MediaQuery.of(context).size;
 
     return
+    shop!=null?
       new
       WillPopScope(//onWillPop: _onBackPressed,
           child:new
@@ -257,10 +258,10 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                               title: Text("View Image"),
                               leading: Icon(Icons.camera),
                             ),
-                            ListTile(onTap: () {getImage( changedImage );},
+                           User().hasPermission(shop['user_id'])? ListTile(onTap: () {getImage( changedImage );},
                               title: Text("Change Image"),
                               leading: Icon(Icons.edit),
-                            ),
+                            ):Text(""),
 //             ListTile(
 //             title: Text(""
 //                 "Delete Image"),
@@ -441,6 +442,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
               )
           )
       )
+      :ProgressDialogPrimary()
     ;
   }
   Widget info (){
@@ -448,10 +450,10 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
         Column ( children: <Widget>[
           Row(children: <Widget>[
            Container(child:Text( "Information",  style: Theme.of(context).textTheme.title,) ,padding: EdgeInsets.all(15)) ,
-            Expanded( child: Container( padding: EdgeInsets.all(15),alignment: Alignment.bottomRight,
+            User().hasPermission(shop['user_id'])? Expanded( child: Container( padding: EdgeInsets.all(15),alignment: Alignment.bottomRight,
                 child:InkWell(child:Icon( Icons.edit ,textDirection: TextDirection.rtl) ,onTap: (){    Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => ShopUserFormScreen(shopId: shop['id'].toString()  ))
-                );},) ) ,) ],),
+                );},) ) ,):Container() ],),
 
           Divider() ,
           shop!=null && shop['phone']!=null?  ListTile(

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/home.dart';
+import 'package:flutterapp3/products/homeScreen.dart';
+import 'package:flutterapp3/store/user.dart';
 import 'package:flutterapp3/user/login.dart';
+import 'package:flutterapp3/user/welcomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -12,7 +15,7 @@ void main() => runApp(
         body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
       ),
       ),
-      home: Home(),
+      home: new User().getUser()!=null?  HomeScreen ():WelcomePage(),
       initialRoute: '/',
 
     )

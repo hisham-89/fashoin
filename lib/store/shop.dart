@@ -62,7 +62,7 @@ class Shop {
 
     var user_id=User().getUserId();
     String url;
-    if(isMyShops){
+    if(isMyShops!=null&&isMyShops){
       url = baseUrl+'shops?search=user_id:$user_id';
     }
     else if (searchByName!=null){

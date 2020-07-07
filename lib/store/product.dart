@@ -17,6 +17,21 @@ class Product {
       content: json['content'],
     );
   }
+  getLikesCount(count){
+
+    if(count==0||count==null){
+      return "";
+    }
+    else if(   count/1000000  >=1 ){
+      return (count/1000000).toString() +"M";
+    }
+    else if(   count/1000  >=1 ){
+      return (count/1000).toString() +"K";
+    }
+    else{
+      return count.toString();
+    }
+  }
   addProduct (data,context) async{
     var url = baseUrl+'products';
 
@@ -52,7 +67,9 @@ class Product {
     var url = baseUrl+'products/'+id;
     var header=new General().authHeader();
     var response = await http.get(url,headers: header );
-    var response1=jsonDecode( response.body);
+  debugPrint (url);
+   if(response.statusCode==200){
+   var response1=jsonDecode( response.body);
 
     if (response1['success']){
       debugPrint( url);
@@ -62,21 +79,26 @@ class Product {
       return   0;
 
   }
-  getProducts ( isMyProducts) async{
+    return   0;
+  }
+  getProducts ( page,isMyProducts) async{
 
-
+page=2;
     var user_id=User().getUserId();
     String url;
     if(isMyProducts){
-      url = baseUrl+'products?search=user_id:$user_id';
+      url = baseUrl+'products?search=user_id:$user_id'+"&page="+page;
     }
     else
-         url = baseUrl+'products';
+         url = baseUrl+'products?page='+page.toString();
     var header=new General().authHeader();
     debugPrint(url+'isMyProducts');
     var response = await http.get(url,headers: header );
-
     var response1=jsonDecode( response.body);
+   if (response.statusCode==200)
+      response1=jsonDecode( response.body);
+   else
+     return 0;
     if (response1['success']){
       print(response1['success']);
       return response1['data']  ;

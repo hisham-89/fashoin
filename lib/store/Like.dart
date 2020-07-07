@@ -29,19 +29,20 @@ class Like{
       else
         return   [];
     }
-  getMyLikes() async{
-
-    var url = baseUrl+'users/'+User().getUserId()+'?with=likes';
-    var header=new General().authHeader();
+  getMyLikes() async {
+    var url = baseUrl + 'users/' + User().getUserId() + '?with=likes';
+    var header = new General().authHeader();
     debugPrint(url);
-    var response = await http.get(url,headers: header );
-    var response1=jsonDecode( response.body);
-    if (response1['success']){
-      return response1['data'] ['likes'] ;
+    var response = await http.get(url, headers: header);
+    if (response.statusCode == 200) {
+      var response1 = jsonDecode(response.body);
+      if (response1['success']) {
+        return response1['data'] ['likes'];
+      }
+
+      else
+        return 0;
     }
-
-    else
-      return   0;
+    return 0;
   }
-
 }

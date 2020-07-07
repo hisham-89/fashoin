@@ -5,7 +5,9 @@ import 'package:flutterapp3/MessageDetails.dart';
 import 'package:flutterapp3/config/url.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
+import 'package:flutterapp3/products/searchScreen.dart';
 import 'package:flutterapp3/products/shopScreen.dart';
+import 'package:flutterapp3/products/shopUserForm.dart';
 import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/shop.dart';
 import 'package:flutterapp3/store/user.dart';
@@ -126,7 +128,14 @@ class _MyHomePageState extends State<Shops> {
   Widget build(BuildContext context) {
     return   Scaffold(
       appBar: AppBar(
-        title: Text(isMyShops?'My Shops':'Shops',style: TextStyle(color: Colors.white), ),
+        title: Text(isMyShops!=null&&isMyShops?'My Shops':'Shops',style: TextStyle(color: Colors.white), ),
+        actions: <Widget>[
+          isMyShops!=null&&isMyShops?  FlatButton.icon(  onPressed: (){General.pushRoute(context, ShopUserFormScreen());}, icon:Icon(Icons.add,color: Colors.white,) ,
+               label: Text("Add shop" ,style: TextStyle(color: Colors.white,),)):Container()
+         , Padding(
+            child:  GestureDetector(onTap: (){  Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) =>  SearchScreen())
+            );},  child: Icon(Icons.search,size: 25,color: Colors.white,) ),padding: EdgeInsets.only(left: 15,right: 15),) ],
       ),
       body:
       Container( decoration: BoxDecoration(color: MYColors.grey(),

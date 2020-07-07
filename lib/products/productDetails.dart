@@ -198,7 +198,7 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
 
 
         title: Text(product!=null? product['name']:'' , style: TextStyle(color: Colors.white),),
-        actions: <Widget>[
+        actions:  User().hasPermission(product['shop']['user_id'])?<Widget>[
 
           PopupMenuButton<Choice>(color: Colors.white,
             onSelected:  (Choice choice) {
@@ -219,9 +219,9 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
               }).toList();
             },
           ),
-        ],
+        ]:<Widget>[],
       ),
-      body:   visible?ProgressDialogPrimary() :
+      body:   visible?ProgressDialogPrimary() :product!=null?
       SingleChildScrollView(
         //  fit: StackFit.expand,
         child: Column(
@@ -383,7 +383,7 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
               )
             ]
         ),
-      ),
+      ):Text(""),
     );
   }
 

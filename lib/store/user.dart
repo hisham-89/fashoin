@@ -8,6 +8,7 @@ import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/home.dart';
 import 'package:flutterapp3/likes.dart';
 import 'package:flutterapp3/products/homeScreen.dart';
+import 'package:flutterapp3/user/welcomePage.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 class User {
@@ -20,6 +21,13 @@ class User {
          return false;
        }
      return true;
+   }
+   hasPermission(itemUserId)
+   {
+     if(itemUserId.toString()==getUserId())
+       return true;
+     else
+       return false;
    }
   getUser()
   {
@@ -43,12 +51,37 @@ class User {
       return androidDeviceInfo.id; // unique ID on Android
     }
   }
-  login (data) async{
+  loginByGoogle(_currentUser ) async{
+    final http.Response response = await http.get(
+      'https://people.googleapis.com/v1/people/me/connections'
+          '?requestMask.includeField=person.names',
+      headers: await _currentUser.authHeaders,
+    );
+    if (response.statusCode != 200) {
+//      setState(() {
+//        _contactText = "People API gave a ${response.statusCode} "
+//            "response. Check logs for details.";
+//      });
+      //print('People API ${response.statusCode} response: ${respo_handleSignOutnse.body}');
+      return;
+    }
+    final Map<String, dynamic> data = json.decode(response.body);
+    return data;
+  }
+
+  loginBySocialAccount(data){
+
+  }
+
+  login (data,{isSocial}) async{
    // SERVER LOGIN API URL
     var url = baseUrl+'login';
+
     String device_id= await _getDeviceId();
     data['device_id']=device_id;
-
+    if (isSocial!=null&&isSocial){
+        url = baseUrl+'loginSocial';
+    }
     // Starting Web API Call.
     var response = await http.post(url,headers: {"Content-Type": "application/json"}, body: json.encode(data));
     log('data: $response');
@@ -59,6 +92,7 @@ class User {
     }
      return bodyContent;
   }
+
   register (data,context) async{
     var url = baseUrl+'register';
 
@@ -87,7 +121,7 @@ class User {
       storage.clear( );
       Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen( ))
+          MaterialPageRoute(builder: (context) => WelcomePage( ))
       );
     }
     return  jsonDecode( response.body);

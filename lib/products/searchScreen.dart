@@ -1,22 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/products/productDetails.dart';
+
 import 'package:flutterapp3/products/shopScreen.dart';
 import 'package:flutterapp3/products/shops.dart';
-import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/shop.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:async';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:intl/intl.dart';
-import 'package:date_util/date_util.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SearchScreen extends StatefulWidget {
   SearchScreen({Key key }) : super(key: key);
@@ -73,7 +65,7 @@ class _SettingState extends State<SearchScreen> {
             child: Column(
               children: <Widget>[
 
-                TypeAheadFormField(
+                TypeAheadFormField(hideOnError: true,
                   textFieldConfiguration: TextFieldConfiguration(
                       onSubmitted: (term){
                         setState(() {
@@ -92,7 +84,7 @@ class _SettingState extends State<SearchScreen> {
                           borderSide: BorderSide(color: Colors.white),
                           borderRadius: BorderRadius.circular(25.7),
                         ),
-                        filled: true,
+                        filled: true,//errorText: "",
                         fillColor: Color.fromRGBO(142, 142, 147, .15),
                         border: new OutlineInputBorder( borderRadius: const BorderRadius.all(
                           const Radius.circular(20.0),
@@ -112,7 +104,7 @@ class _SettingState extends State<SearchScreen> {
                     return
 
                       ListTile(
-                        onTap: (){ General.pushRoute(context, ProductsDetailsScreen(id:suggestion['id']) );},
+                        onTap: (){debugPrint('f'); General.pushRoute(context, ShopScreen(id:suggestion['id'].toString()) );},
                       title: Text(suggestion['name']),
                       leading:    Container  (width: 50,height: 50,
                           decoration: BoxDecoration(color: MYColors.grey1(),
@@ -133,7 +125,7 @@ class _SettingState extends State<SearchScreen> {
                   },
                   validator: (value) {
                     if (value.isEmpty) {
-                      return 'Please select a city';
+                      return 'Please select ';
                     }
                   },
                   onSaved: (value) =>{
@@ -185,7 +177,6 @@ class _SettingState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    // Call the getJSONData() method when the app initializes
-   // this.getJSONData();
+
   }
 }

@@ -37,7 +37,19 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
-
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state == AppLifecycleState.resumed){
+      debugPrint('resumed');
+    }else if(state == AppLifecycleState.inactive){
+      debugPrint('inactive');
+    }else if(state == AppLifecycleState.paused){
+      debugPrint('paused');
+    }
+//    else if(state == AppLifecycleState.){
+//      // app suspended (not used in iOS)
+//    }
+  }
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -45,6 +57,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   List data;
+  _MyHomePageState(){
+    debugPrint("constructor");
+  }
   // Function to get the JSON data
   Future<String> getJSONData() async {
 
@@ -52,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     setState(() {
       // Get the JSON data
+      if(response!=0)
       data  = response;
     });
     return "Successfull";
@@ -73,8 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildListView() {
-    if (data == null)
-      this.getJSONData();
+    debugPrint('resumed');
     return
 
       ListView.builder(
@@ -146,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     // Call the getJSONData() method when the app initializes
-    this.getJSONData();
+   // if (data == null)
+      this.getJSONData();
   }
 }

@@ -50,7 +50,7 @@ class Home extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<Home> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 2;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -62,9 +62,9 @@ class _MyStatefulWidgetState extends State<Home> {
   }
   Future<bool> _onBackPressed( ) async{
     debugPrint('dddddddddddddddddd');
-    if(_selectedIndex!=1)
+    if(_selectedIndex!=2)
     setState(() {
-      _selectedIndex = 1;
+      _selectedIndex = 2;
     });
     else{
      Navigator.pop(context);
@@ -88,14 +88,16 @@ class _MyStatefulWidgetState extends State<Home> {
               index: _selectedIndex,
               children: <Widget>[
                 new Likes(),// User().getUser()!=null?new MyMessages():new LoginUser(),
+                new Shops(isMyShops: false ) ,
                 new HomeScreen() ,
                 new MyFollwingPageScreen(),
+                new Profile( ) ,
               //  new NotificationsScreen(),
               ],
             )),
         bottomNavigationBar:
         Container(
-          decoration: BoxDecoration(color: MYColors.grey(),
+          decoration: BoxDecoration(color: MYColors.primaryColor() ,
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.5),
@@ -107,24 +109,37 @@ class _MyStatefulWidgetState extends State<Home> {
           ),
           padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
           child:
-          BottomNavigationBar(  type: BottomNavigationBarType.fixed,
+          BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             selectedLabelStyle: TextStyle(color: MYColors.primaryColor()),
             items: const <BottomNavigationBarItem>[
+
               BottomNavigationBarItem(
-                icon: Icon( favorite ,color: Colors.red ,size: 25 ),
-                title: Text('' ),
+                icon: Icon( favorite  ,size: 25 ),
+                title: Text('Likes' ),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon( Icons.store  ,size: 25 ),
+                title: Text('Shops' ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.home,size: 25),
-                title: Text(''),
+                title: Text('Home'),
               ),
+
               BottomNavigationBarItem(
                 icon: Icon( Icons.thumb_up,size: 25 ),
                 title: Text('Following'),
               ),
+              BottomNavigationBarItem(
+                icon: Icon( Icons.supervised_user_circle  ,size: 25 ),
+                title: Text('Account' ),
+              ),
             ],
             currentIndex: _selectedIndex,backgroundColor: MYColors.grey1(),
-            selectedItemColor: MYColors.primaryColor(),showSelectedLabels: false,showUnselectedLabels: false,
+            selectedItemColor: MYColors.primaryColor(),
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
             onTap: _onItemTapped,
           ),
         )));
