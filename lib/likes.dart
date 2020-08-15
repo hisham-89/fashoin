@@ -57,42 +57,79 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   List data;
+  int page=1;
+  int last_page=10;
+  bool visible=false;
+  var controller= new ScrollController();
   _MyHomePageState(){
     debugPrint("constructor");
   }
   // Function to get the JSON data
   Future<String> getJSONData() async {
-
-    var response =await Like ().getMyLikes(    ) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
+    setState(() {
+      visible=true;});
+    var response =await Like ().getMyLikes(  page  ) ;
 
     setState(() {
-      // Get the JSON data
-      if(response!=0)
-      data  = response;
+      visible=false;
+      if (data!=null)
+        data.addAll(response['data']['data']) ;
+      else
+        data=response['data']['data'];
+      page++;
+      if(response['data']['last_page']!=null)
+        last_page=response['data']['last_page'];
     });
     return "Successfull";
   }
+  _scrollListener(){
 
+    if (controller.position.pixels==controller.position.maxScrollExtent){
+      if(page<=last_page)
+        getJSONData();
+      else
+        setState(() {
+          visible=false;
+        });
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title,style: TextStyle(color: Colors.white), ),
-      ),
-      body:
-      Container( decoration: BoxDecoration(color: MYColors.grey(),
+    return  new  WillPopScope(
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text(widget.title,style: TextStyle(color: Colors.white), ),
+            ),
+            body:RefreshIndicator(onRefresh: ()async{
+              setState(() {
+                page=1;
+                data=null;
+                getJSONData();
+                visible=true;
+              });
+            },
+                child: SingleChildScrollView(
+                  controller:controller ,
+              child:
+              Column(children: <Widget>[  Container( decoration: BoxDecoration(color: MYColors.grey(),
 
-      ),
-        child:_buildListView()
-        , ),
+              ),
+                child:_buildListView()
+                , ) ,
+                visible?CircularProgressIndicator():Container()],)
+
+            )
+        )
+    )
     );
   }
 
   Widget _buildListView() {
-    debugPrint('resumed');
+
     return
 
       ListView.builder(
+          shrinkWrap: true,physics: NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(5.0),
           itemCount: data == null ? 0 : data.length,
           itemBuilder: (context, index) {
@@ -123,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child:
           ListTile(
               onTap: () {
-            General.pushRoute(context, ProductsDetailsScreenPage (id:item['product']['id'].toString() ));
+                General.pushRoute(context, ProductsDetailsScreenPage (id:item['product']['id'].toString() ));
 
               },
               leading:
@@ -159,9 +196,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   @override
   void initState() {
+    controller.addListener(_scrollListener);
     super.initState();
     // Call the getJSONData() method when the app initializes
-   // if (data == null)
-      this.getJSONData();
+    // if (data == null)
+    this.getJSONData();
   }
 }

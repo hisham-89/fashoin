@@ -115,11 +115,20 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
   Future<String> getJSONData() async {
 
     var response = await  Shop().getShop(this.id);
+
+
+     print(shop);
     setState(() {
       // Get the JSON data
+      visible=false;
       shop  = response;
 
     });
+    if(shop!=null&&shop['is_followed'].length>0 )
+      setState(() {
+        isFollowed=true;
+
+      });
     return "Successfull";
   }
   Future<bool> _onBackPressed() async{
@@ -506,7 +515,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
             borderRadius: BorderRadius.circular(5.0),
           ),
               margin: EdgeInsets.only(top: 0),    child:ListTile(title: Text("Our products",style: TextStyle(fontSize: 20,color: MYColors.primaryColor()),),)),
-          ListTile(
+          User().hasPermission(shop['user_id'])?   ListTile(
 
             title:RaisedButton.icon(icon: Icon(Icons.add ,color: Colors.white,) , color:MYColors.primaryColor(),
               label:  Text(
@@ -523,7 +532,7 @@ class _ShopPageState extends State<ShopPage>   with TickerProviderStateMixin {
                   MaterialPageRoute(builder: (context) => AddProductScreen(shopId:shop['id'].toString()))
               );
             },
-          ),
+          ):Container(),
           Container ( //height: 600,
               child:  ListView.builder(shrinkWrap: true,  physics: NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(5.0),

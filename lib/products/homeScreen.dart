@@ -28,8 +28,11 @@ class HomeScreen extends StatefulWidget {
 
 }
 class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin{
-  List products;   var page=0;
-  ScrollController controller;
+  List products;
+  int last_page=10;
+  bool visible=true;
+  int page=1;
+  final ScrollController controller=new ScrollController();
   HomeScreenState( );
   static const String _title = 'Flutter Code Sample';
 
@@ -42,24 +45,35 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
     "https://cdn.pixabay.com/photo/2020/02/05/11/06/portrait-4820889_960_720.jpg"
   ];
   Future<void> initState()   {
-
-    controller = new ScrollController()..addListener(_scrollListener);
+    controller.addListener(_scrollListener);
     super.initState();
+    getJSONData();
+
   }
+
   _scrollListener(){
-    debugPrint( '-----------------');
+
     if (controller.position.pixels==controller.position.maxScrollExtent){
-      debugPrint( 'isMyProducts');
+      if(page<=last_page)
+        getJSONData();
+      else
+        setState(() {
+          visible=false;
+        });
     }
   }
   Future<String> getJSONData() async {
     var response = await  Product().getProducts( page,false);
+
     setState(() {
-      // Get the JSON data
-      if(response!=0) {
-        products = response;
-        page++;
-      }
+      if (products!=null)
+        products.addAll(response['data']['data']) ;
+      else
+        products=response['data']['data'];
+      page++;
+      if(response['data']['last_page']!=null)
+        last_page=response['data']['last_page'];
+
     });
     return "Successfull";
   }
@@ -146,10 +160,11 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
     return Container (
 
         child:  ListView.builder(shrinkWrap: true,  physics: NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(0.0),controller: controller,
+            padding: const EdgeInsets.all(0.0),
+
             itemCount:  products==null  ? 0 : products.length,
             itemBuilder: (context, index) {
-              //  return _buildImageColumn(data[index]);
+
               return ProductScreen(product: products[index]);//.showProduct(products[index] ,context);
             }
         )
@@ -164,7 +179,7 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
   Widget build(BuildContext context) {
 
     if (products==null){
-      this.getJSONData();
+     this.getJSONData();
     }
     PageController _pageController;
     int _page = 0;
@@ -311,13 +326,21 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
                 ),
               ),
               body: RefreshIndicator (onRefresh: ()async{
+                setState(() {
+                  page=1;
+                  products=null;
+                  getJSONData();
+                  visible=true;
+                });
               },
-              child: SingleChildScrollView(child:
-
+              child: SingleChildScrollView(
+                  controller: controller,
+                  child:
+           //  homeProducts())
               Container( color: MYColors.grey(),
                   //padding: const EdgeInsets.fromLTRB(0.0,10,0,10),
                   child: Align(
-                    child: Column(  crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(  crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
 //                      Container(decoration: BoxDecoration(   color: Colors.white,
 //                        boxShadow: [
@@ -451,6 +474,9 @@ class HomeScreenState extends State<HomeScreen>    with TickerProviderStateMixin
                         //  Divider(),
                         Container(child: products!=null&& products.length!=0 ? homeProducts():Container()
                             ,padding: EdgeInsets.only(left: 15,right: 15))
+                        ,  visible? CircularProgressIndicator(
+                          // valueColor: new AlwaysStoppedAnimation<Color>(AppColors.themeColorSecondary),
+                        ):Container()
 
                       ],
                     ),

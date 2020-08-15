@@ -61,7 +61,7 @@ class _MyStatefulWidgetState extends State<Home> {
     });
   }
   Future<bool> _onBackPressed( ) async{
-    debugPrint('dddddddddddddddddd');
+
     if(_selectedIndex!=2)
     setState(() {
       _selectedIndex = 2;
@@ -84,7 +84,6 @@ class _MyStatefulWidgetState extends State<Home> {
         body: Container(
             child:
             new IndexedStack(
-
               index: _selectedIndex,
               children: <Widget>[
                 new Likes(),// User().getUser()!=null?new MyMessages():new LoginUser(),

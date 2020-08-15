@@ -27,15 +27,19 @@ class Follow{
       else
         return   [];
     }
-  getMyFollowingShops() async{
+  getMyFollowingShops(page) async{
 
-    var url = baseUrl+'users/'+User().getUserId()+'?with=following';
+   // var url = baseUrl+'users/'+User().getUserId()+'?with=following&page=$page';
+    var url = baseUrl+'followers/?search=user_id:'+User().getUserId()+'&page=$page&with=shop';
     var header=new General().authHeader();
     debugPrint(url);
     var response = await http.get(url,headers: header );
+    if(response.statusCode==200){
     var response1=jsonDecode( response.body);
+    print(response1);
     if (response1['success']){
-      return response1['data'] ['following'] ;
+      return response1    ;
+    }
     }
 
     else

@@ -29,15 +29,16 @@ class Like{
       else
         return   [];
     }
-  getMyLikes() async {
-    var url = baseUrl + 'users/' + User().getUserId() + '?with=likes';
+  getMyLikes(page) async {
+   // var url = baseUrl + 'users/' + User().getUserId() + '?with=likes';
+    var url = baseUrl+'likes/?search=user_id:'+User().getUserId()+'&page=$page&with=product';
     var header = new General().authHeader();
     debugPrint(url);
     var response = await http.get(url, headers: header);
     if (response.statusCode == 200) {
       var response1 = jsonDecode(response.body);
       if (response1['success']) {
-        return response1['data'] ['likes'];
+        return response1 ;
       }
 
       else

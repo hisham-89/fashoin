@@ -22,7 +22,7 @@ import 'package:date_util/date_util.dart';
 
 class ShopComponent{
 
-    Widget  buildRow(dynamic item,context) {
+  Widget  buildRow(dynamic item,context) {
 
     return
       ConstrainedBox(constraints: BoxConstraints(maxHeight: 300),
@@ -101,29 +101,34 @@ class Shops extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<Shops> {
-
-    bool isMyShops=false;
-    _MyHomePageState(this.isMyShops);
-    List data=null;
-
+  bool visible=true;
+  bool isMyShops=false;
+  _MyHomePageState(this.isMyShops);
+  List data=null;
+  int page=1;
+  int last_page=1000;
+  final controller=new ScrollController();
   // Function to get the JSON data
   Future<String> getJSONData() async {
-    var response =await Shop().getShops(isMyShops) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
     setState(() {
+      visible= true;
+       });
+    var response =await Shop().getShops(isMyShops,page:page) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
+    setState(() {
+      visible=false;
       // Get the JSON data
-      data  = response;
+      if (data!=null)
+        data.addAll(response['data']['data']) ;
+      else
+        data=response['data']['data'];
+      page++;
+      if(response['data']['last_page']!=null)
+        last_page=response['data']['last_page'];
     });
     return "Successfull";
   }
 
-  final List<String> imageList = [
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_KZalW8BX3-_Oez9mS5b1cEuqxFYcdu3OEeWbzWWAbKUKfLR2&usqp=CAU",
-    "https://blog.printsome.com/wp-content/uploads/zara-1.jpg",
-    "https://blog.printsome.com/wp-content/uploads/2000px-Gap_logo.svg-copy.jpg",
-    "https://blog.printsome.com/wp-content/uploads/2000px-Adidas_Logo.svg-copy-540x360.jpg",
-    "https://blog.printsome.com/wp-content/uploads/Lacoste_logo.svg_.jpg",
-    "https://blog.printsome.com/wp-content/uploads/1200px-American_Eagle_Outfitters_logo.svg_.jpg"
-  ];
+
   @override
   Widget build(BuildContext context) {
     return   Scaffold(
@@ -131,34 +136,72 @@ class _MyHomePageState extends State<Shops> {
         title: Text(isMyShops!=null&&isMyShops?'My Shops':'Shops',style: TextStyle(color: Colors.white), ),
         actions: <Widget>[
           isMyShops!=null&&isMyShops?  FlatButton.icon(  onPressed: (){General.pushRoute(context, ShopUserFormScreen());}, icon:Icon(Icons.add,color: Colors.white,) ,
-               label: Text("Add shop" ,style: TextStyle(color: Colors.white,),)):Container()
-         , Padding(
+              label: Text("Add shop" ,style: TextStyle(color: Colors.white,),)):Container()
+          , Padding(
             child:  GestureDetector(onTap: (){  Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) =>  SearchScreen())
-            );},  child: Icon(Icons.search,size: 25,color: Colors.white,) ),padding: EdgeInsets.only(left: 15,right: 15),) ],
+            );},
+                child: Icon(Icons.search,size: 25,color: Colors.white,) ),
+            padding: EdgeInsets.only(left: 15,right: 15),) ],
       ),
-      body:
-      Container( decoration: BoxDecoration(color: MYColors.grey(),
+      body: RefreshIndicator (onRefresh: ()async{
+        setState(() {
+          page=1;
+          data=null;
+          getJSONData();
+          visible=true;
+        });
+      },
+       child:
+        SingleChildScrollView(
+        controller:controller ,
+        child:
+        Container( decoration: BoxDecoration(color: MYColors.grey(),
 
-      ),
-        child:_buildListView()
-        , ),
-    )
-     ;
+        ),
+          child:Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              _buildListView(),
+              visible? CircularProgressIndicator(
+                // valueColor: new AlwaysStoppedAnimation<Color>(AppColors.themeColorSecondary),
+              ):Container()
+            ],)
+
+          , ),
+      ))
+      ,)
+    ;
   }
+  _scrollListener(){
+    print( '-----------------');
+    if (controller.position.pixels==controller.position.maxScrollExtent){
 
+
+      if(page<=last_page)
+        getJSONData();
+      else
+        setState(() {
+          visible=false;
+        });
+    }
+  }
   Widget _buildListView() {
     if (data == null){
       this.getJSONData();}
 
     return ListView.builder(
-          padding: const EdgeInsets.all(5.0),
-          itemCount: data == null ? 0 : data.length,
-          itemBuilder: (context, index) {
-            //  return _buildImageColumn(data[index]);
-            return ShopComponent().buildRow(data[index],context);
-          }
-      )
+      //  controller: controller,
+        shrinkWrap: true,    physics: NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(5.0),
+        itemCount: data == null ? 0 : data.length,
+
+        itemBuilder: (context, index) {
+          //  return _buildImageColumn(data[index]);
+          return ShopComponent().buildRow(data[index],context);
+        }
+    )
     ;
   }
   getDate(date){
@@ -172,8 +215,9 @@ class _MyHomePageState extends State<Shops> {
 
   @override
   void initState() {
+    controller.addListener(_scrollListener);
     super.initState();
     // Call the getJSONData() method when the app initializes
-    this.getJSONData();
+    //  this.getJSONData();
   }
 }

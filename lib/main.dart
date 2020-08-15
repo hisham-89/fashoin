@@ -15,7 +15,7 @@ void main() => runApp(
         body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
       ),
       ),
-      home: new User().getUser()!=null?  HomeScreen ():WelcomePage(),
+      home: new User().getUser()!=null?  HomeScreen ()  :WelcomePage(),
       initialRoute: '/',
 
     )

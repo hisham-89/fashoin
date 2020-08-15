@@ -30,14 +30,24 @@ class MyFollwingPageScreen extends StatefulWidget {
 class _MyHomePageState extends State<MyFollwingPageScreen> {
 
   var data;
+  int page=1;
+  int last_page=1000;
+  bool visible=true;
+  final controller=new ScrollController();
   // Function to get the JSON data
   Future<String> getJSONData() async {
 
-    var response =await Follow ().getMyFollowingShops(    ) ;//await http.get('https://jsonplaceholder.typicode.com/posts',headers: header );
-
+    var response =await Follow ().getMyFollowingShops( page   ) ;
+    debugPrint('ssssssssssssssssssssssss');
     setState(() {
       // Get the JSON data
-      data  = response;
+      if (data!=null)
+        data.addAll(response['data']['data']) ;
+      else
+        data=response['data']['data'];
+      page++;
+      if(response['data']['last_page']!=null)
+        last_page=response['data']['last_page'];
     });
     return "Successfull";
   }
@@ -49,23 +59,32 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //if(data==null)
+     //this.getJSONData();
     return
       new  WillPopScope( // onWillPop:  _onBackPressed ,
      child: Scaffold(
       appBar: AppBar(
         title: Text( "My Following",style: TextStyle(color: Colors.white), ),
       ),
-      body:
-      Container( decoration: BoxDecoration(color: MYColors.grey(),
+      body:RefreshIndicator(onRefresh: ()async{
+        setState(() {
+          page=1;
+          data=null;
+          getJSONData();
+          visible=true;
+        });
+      },
+        child:   Container( decoration: BoxDecoration(color: MYColors.grey(),
       ),
         child:_buildListView()
         , ),
-      ));
+      )));
   }
 
   Widget _buildListView() {
-    if (data == null)
-      this.getJSONData();
+    // if (data == null)
+    // this.getJSONData();
     return
 
       ListView.builder(
@@ -166,6 +185,6 @@ class _MyHomePageState extends State<MyFollwingPageScreen> {
   void initState() {
     super.initState();
     // Call the getJSONData() method when the app initializes
-    this.getJSONData();
+     getJSONData();
   }
 }

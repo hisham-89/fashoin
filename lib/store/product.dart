@@ -83,7 +83,7 @@ class Product {
   }
   getProducts ( page,isMyProducts) async{
 
-page=2;
+
     var user_id=User().getUserId();
     String url;
     if(isMyProducts){
@@ -92,16 +92,16 @@ page=2;
     else
          url = baseUrl+'products?page='+page.toString();
     var header=new General().authHeader();
-    debugPrint(url+'isMyProducts');
+    debugPrint(url);
     var response = await http.get(url,headers: header );
-    var response1=jsonDecode( response.body);
+    var response1;
    if (response.statusCode==200)
-      response1=jsonDecode( response.body);
+       response1=jsonDecode( response.body);
    else
      return 0;
     if (response1['success']){
-      print(response1['success']);
-      return response1['data']  ;
+
+      return response1   ;
     }
 
     else

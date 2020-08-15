@@ -57,27 +57,28 @@ class Shop {
 
   }
 
-  getShops ( isMyShops,{searchByName}) async{
+  getShops ( isMyShops,{searchByName,page}) async{
 
-
+    page!=null?page:1;
     var user_id=User().getUserId();
     String url;
     if(isMyShops!=null&&isMyShops){
-      url = baseUrl+'shops?search=user_id:$user_id';
+      url = baseUrl+'shops?search=user_id:$user_id&page=$page';
     }
     else if (searchByName!=null){
-      url = baseUrl+'shops?search=$searchByName&searchFields=name:like';
+      url = baseUrl+'shops?search=$searchByName&searchFields=name:like&page=$page';
     }
     else
-         url = baseUrl+'shops';
+         url = baseUrl+'shops?page=$page';
     var header=new General().authHeader();
-    debugPrint(url+'isMyShops');
+    debugPrint(url  );
     var response = await http.get(url,headers: header );
 
     var response1=jsonDecode( response.body);
+    print(response1);
+    if(response.statusCode==200)
     if (response1['success']){
-      print(response1['success']);
-      return response1['data']  ;
+      return response1   ;
     }
 
     else
