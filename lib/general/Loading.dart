@@ -22,8 +22,8 @@ class ProgressDialogPrimary extends StatelessWidget {
        ,
       ),
       color: brightness ?  Colors.white.withOpacity(
-          0.70) : Colors.black.withOpacity(
-          0.70), // this is the main reason of transparency at next screen. I am ignoring rest implementation but what i have achieved is you can see.
+          1.0) : Colors.black.withOpacity(
+          1.0), // this is the main reason of transparency at next screen. I am ignoring rest implementation but what i have achieved is you can see.
 
     );
   }

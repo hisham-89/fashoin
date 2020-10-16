@@ -5,12 +5,14 @@ import 'package:flutterapp3/config/url.dart';
 import 'package:flutterapp3/store/user.dart';
 import 'package:localstorage/localstorage.dart';
 class General {
-  authHeader() {
-    var user = new User().getUser();
+ User  user=new User();
+  authHeader() async{
+     await user.init();
+      user.getUser();
     var authHeader;
     if (user != null)
       authHeader = {
-        'Authorization': 'Bearer ' + user['api_token'],
+        'Authorization': 'Bearer ' + user.getUser( value: 'api_token'),
         'Content-Type': 'application/json'
       };
     else

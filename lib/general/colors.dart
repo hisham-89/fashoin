@@ -17,13 +17,14 @@ class MYColors{
     return Color(0xfff8f8f8);
   }
 
-  static Color fontGrey(){
-    return Color(0xff5e5e5e);
-  }
   static Color fontGreyTransparent(){
     return Color(0xfff2f2f2);
   }
-
+  static Color fontGrey(){
+    return Color(0xff5e5e5e);
+  } static Color green(){
+    return Color(0xfff2f2f2);
+  }
   static Color UnreadMsg(){
     return Color(0xebebebfa);
 }

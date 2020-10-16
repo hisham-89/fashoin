@@ -29,7 +29,8 @@ class ProductScreenState extends State<ProductScreen>  {
     setState(() {
       isliked=!isliked;
     });
-     var res= await Like().likeProduct({'product_id':product['id'] ,"user_id":User().getUserId()}, isliked,product['id'].toString());
+     var res= await Like().likeProduct({'product_id':product['id'] ,"user_id":User().getUserId()},
+         isliked,product['id'].toString());
   }
   // Function to get the JSON data
   Future<String> getJSONData() async {
@@ -95,29 +96,23 @@ class ProductScreenState extends State<ProductScreen>  {
                       MaterialPageRoute(builder: (context) => ProductsDetailsScreen(  id:product['id'].toString(),product:product )
                       ));
                   },child:  Container(
-                    //height: 350,
                     width: double.infinity,
-//                decoration: BoxDecoration(
-//                        borderRadius: BorderRadius.circular(10.0),
-//                         image:  product['images']!=null&&product['images'].length==1?DecorationImage(
-//                            image: CachedNetworkImageProvider(General.mediaUrl(product['images'][0]['name'])),
-//                            fit: BoxFit.contain
-//                        ):null
-//                    ) ,
-                    child:product['images']!=null && product['images'].length>0? imageSlider(product['images'],product['id'].toString(), product ):Container(),
+                    child:product['images']!=null && product['images'].length>0?
+                    imageSlider(product['images'],product['id'].toString(), product ):Container(),
                   )),
 
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 4.0, bottom: 16.0),
+                padding: const EdgeInsets.only(left: 10.0, right: 20.0, bottom: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Row(children: <Widget>[
                       Expanded(child: Text( General.getDate(product['created_at'],time:true)),),
                       IconButton(icon: Icon(Icons.share), onPressed: (){},)
-                      ,  IconButton(icon: Icon(isliked? Icons.favorite:Icons.favorite_border  ,size: 30 ),onPressed: (){likeProduct();},) ,
+                    , IconButton(icon: Icon(isliked? Icons.favorite:Icons.favorite_border  ,size: 30 ),
+                        onPressed: (){likeProduct();},) ,
 
                     ],),
                     Text(product['name'].toString() , style: Theme.of(context).textTheme.title,),

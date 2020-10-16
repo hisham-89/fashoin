@@ -2,37 +2,35 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutterapp3/MessageDetails.dart';
+import 'package:flutterapp3/Widget/appBar.dart';
+import 'package:flutterapp3/Widget/myDrawer.dart';
 import 'package:flutterapp3/config/url.dart';
+import 'package:flutterapp3/general/Loading.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
+import 'package:flutterapp3/general/translator.dart';
 import 'package:flutterapp3/products/searchScreen.dart';
 import 'package:flutterapp3/products/shopScreen.dart';
 import 'package:flutterapp3/products/shopUserForm.dart';
-import 'package:flutterapp3/store/message.dart';
+import 'package:flutterapp3/store/setting.dart';
 import 'package:flutterapp3/store/shop.dart';
-import 'package:flutterapp3/store/user.dart';
-import 'package:flutterapp3/user/login.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:date_util/date_util.dart';
+import 'package:flutterapp3/store/user.dart';
 
 class ShopComponent{
 
   Widget  buildRow(dynamic item,context) {
 
     return
-      ConstrainedBox(constraints: BoxConstraints(maxHeight: 300),
+      ConstrainedBox(constraints: BoxConstraints(maxHeight: 100),
           child:  InkWell( onTap: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=>ShopScreen( shop: item )) );
           },
               child:
               Container(height: 100,
                   //  padding: const EdgeInsets.fromLTRB(0, 9, 0, 9),
-                  margin: const EdgeInsets.fromLTRB(9, 9, 9, 0),
+                  margin: const EdgeInsets.symmetric( horizontal: 20,vertical: 10),
                   decoration:new  BoxDecoration(color: Colors.white,
                     borderRadius: new BorderRadius.all (new Radius.circular(10.0)),
                   ) ,
@@ -40,12 +38,12 @@ class ShopComponent{
                   child:
                   Container(   child:
                   Row(children: <Widget>[
-                    Container  ( width: 100,height: 200,
+                    Container  ( width: 80,
                         decoration: BoxDecoration(color: MYColors.grey1(),
                             borderRadius: BorderRadius.circular(10.0),
                             image: DecorationImage(
                                 image: item['profile_image']!=null? General.mediaUrl(item['profile_image']) :AssetImage('assets/images/fashionLogo.jpeg'),
-                                fit: BoxFit.fitWidth
+                                fit: BoxFit.cover
                             )
                         )
                     ),
@@ -54,7 +52,6 @@ class ShopComponent{
                             children: <Widget>[
                               //   Image  ( width: 50 , image: AssetImage('assets/images/dress3.png')),
                               Container(
-
                                   child:Text(  item['name'] ,style:TextStyle(fontSize: 21,fontWeight: FontWeight.bold)//(item['title'].length >=20 )?item['title'].substring(0,20) :item['title']
                                   )
                               )
@@ -83,12 +80,7 @@ class ShopComponent{
 
                   )
               )));
-
   }
-
-
-
-
 }
 
 class Shops extends StatefulWidget {
@@ -108,7 +100,10 @@ class _MyHomePageState extends State<Shops> {
   int page=1;
   int last_page=1000;
   final controller=new ScrollController();
-  // Function to get the JSON data
+  GlobalKey<ScaffoldState>_scaffoldKey=new GlobalKey<ScaffoldState>();
+  AppTranslations AppTrans;
+  String lang;
+  User user=new User();
   Future<String> getJSONData() async {
     setState(() {
       visible= true;
@@ -127,23 +122,26 @@ class _MyHomePageState extends State<Shops> {
     });
     return "Successfull";
   }
+  initData() async{
+    var lan = await SettingStore().getLanguage();
+    await user.init();
+    var res=await getJSONData();
 
+    setState(()  {
+
+      lang=lan;
+      AppTrans=new AppTranslations(lang);
+      AppTrans.load(lang);
+      visible=false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return   Scaffold(
-      appBar: AppBar(
-        title: Text(isMyShops!=null&&isMyShops?'My Shops':'Shops',style: TextStyle(color: Colors.white), ),
-        actions: <Widget>[
-          isMyShops!=null&&isMyShops?  FlatButton.icon(  onPressed: (){General.pushRoute(context, ShopUserFormScreen());}, icon:Icon(Icons.add,color: Colors.white,) ,
-              label: Text("Add shop" ,style: TextStyle(color: Colors.white,),)):Container()
-          , Padding(
-            child:  GestureDetector(onTap: (){  Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) =>  SearchScreen())
-            );},
-                child: Icon(Icons.search,size: 25,color: Colors.white,) ),
-            padding: EdgeInsets.only(left: 15,right: 15),) ],
-      ),
+    return  !visible? Scaffold(
+      appBar: MyAppBar.getAppBar(context,_scaffoldKey,title:isMyShops!=null&&isMyShops?AppTrans.text('My Shops'):AppTrans.text('Shops') ),
+      drawer: MyDrawer() ,
+
       body: RefreshIndicator (onRefresh: ()async{
         setState(() {
           page=1;
@@ -156,7 +154,7 @@ class _MyHomePageState extends State<Shops> {
         SingleChildScrollView(
         controller:controller ,
         child:
-        Container( decoration: BoxDecoration(color: MYColors.grey(),
+        Container( decoration: BoxDecoration(
 
         ),
           child:Column(
@@ -171,7 +169,7 @@ class _MyHomePageState extends State<Shops> {
 
           , ),
       ))
-      ,)
+      ,):ProgressDialogPrimary()
     ;
   }
   _scrollListener(){
@@ -204,20 +202,13 @@ class _MyHomePageState extends State<Shops> {
     )
     ;
   }
-  getDate(date){
-    var dateUtility = new DateUtil();
-    var moonLanding = DateTime.parse( date);
-    String monthName = dateUtility.month(moonLanding.month);
-    var year= moonLanding.year==DateTime.now().year?'':"-"+moonLanding.year.toString();
-    return moonLanding.day.toString() + " " + monthName+  year
-        + " at " + moonLanding.hour.toString() + ":" + moonLanding.minute.toString();
-  }
+
 
   @override
   void initState() {
     controller.addListener(_scrollListener);
     super.initState();
-    // Call the getJSONData() method when the app initializes
-    //  this.getJSONData();
+
+    initData();
   }
 }

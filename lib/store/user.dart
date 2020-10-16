@@ -11,34 +11,71 @@ import 'package:flutterapp3/products/homeScreen.dart';
 import 'package:flutterapp3/user/welcomePage.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class User {
   var storage = new LocalStorage('todo_app');
-
+  var userPreferences;
   BuildContext get context => null;
-   isLogedIn(){
-     if (getUser()==null)
-       {
-         return false;
-       }
-     return true;
-   }
-   hasPermission(itemUserId)
-   {
-     if(itemUserId.toString()==getUserId())
-       return true;
-     else
-       return false;
-   }
-  getUser()
+
+  init() async{
+    userPreferences=await SharedPreferences.getInstance();
+  }
+  isLogedIn()  {
+    var user =  getUser();
+    if (user==null)
+    {
+      return false;
+    }
+    return true;
+  }
+  hasPermission(itemUserId)
   {
-    var user=storage.getItem('user')  ;
+    if(itemUserId.toString()==getUserId())
+      return true;
+    else
+      return false;
+  }
+  getUser({value})
+  {
+    String user;
+    // var user=storage.getItem('user')  ;
+    try {
+      user = userPreferences.getString(value == null ? "user_id" : value);
+    }
+    catch(e){
+      return null;
+    }
     return user;
   }
-    getUserId()
+  saveUserDataLocally(data) async{
+
+    userPreferences=await SharedPreferences.getInstance();
+    try {
+      var data2=data['data'];
+      data2.forEach((index,value)=>
+      {
+
+     /*   if(index=='id')
+          userPreferences.setString('user_id',value.toString())
+        else*/
+          userPreferences.setString(index,value.toString())
+      }
+      );
+
+    }
+    catch(e){
+      print(e);
+    }
+  }
+  getUserId() async
   {
-    var user=storage.getItem('user')  ;
-    return user!=null?user['id'].toString():null;
-   }
+    userPreferences=await SharedPreferences.getInstance();
+    var user=userPreferences.getString ("id");
+    print("userq");
+    print(user);
+    return user;
+  }
+
 
   Future<String>   _getDeviceId()  async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -58,11 +95,7 @@ class User {
       headers: await _currentUser.authHeaders,
     );
     if (response.statusCode != 200) {
-//      setState(() {
-//        _contactText = "People API gave a ${response.statusCode} "
-//            "response. Check logs for details.";
-//      });
-      //print('People API ${response.statusCode} response: ${respo_handleSignOutnse.body}');
+
       return;
     }
     final Map<String, dynamic> data = json.decode(response.body);
@@ -88,7 +121,8 @@ class User {
     // Getting Server response into variable.
      var bodyContent = json.decode(response.body);
     if(bodyContent['succes'] ){
-       storage.setItem('user', bodyContent['data']);
+      saveUserDataLocally(bodyContent);
+      // storage.setItem('user', bodyContent['data']);
     }
      return bodyContent;
   }
@@ -103,7 +137,7 @@ class User {
   }
   logout (context )  async{
      Navigator.of(context).pop();
-    storage.clear( );
+     userPreferences.clear();
     Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen( ))

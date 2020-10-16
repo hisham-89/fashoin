@@ -2,45 +2,23 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutterapp3/general/translator.dart';
 import 'package:flutterapp3/likes.dart';
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/likes.dart';
 import 'package:flutterapp3/myMessages1.dart';
 import 'package:flutterapp3/notification.dart';
 import 'package:flutterapp3/products/homeScreen.dart';
-import 'package:flutterapp3/products/productScreen.dart';
-import 'package:flutterapp3/products/addEditProduct.dart';
-import 'package:flutterapp3/products/category.dart';
+
 import 'package:flutterapp3/products/myFollwingPage.dart';
 //import 'package:flutterapp3/products/shop.dart';
 import 'package:flutterapp3/products/shopScreen.dart';
 import 'package:flutterapp3/products/shops.dart';
-import 'package:flutterapp3/store/product.dart';
-import 'package:flutterapp3/store/shop.dart';
-import 'package:flutterapp3/store/user.dart';
-import 'package:flutterapp3/user/login.dart';
 import 'package:flutterapp3/user/profile.dart';
-import 'package:flutterapp3/products/shopUserForm.dart';
-import 'package:flutterapp3/user/welcomePage.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:getflutter/getflutter.dart';
+
 
 /// This Widget is the main application widget.
-//class Home extends StatelessWidget {
-//  static const String _title = 'Flutter Code Sample';
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return MaterialApp(
-//      theme: ThemeData(   primaryColor:     MYColors.primaryColor(),textTheme: TextTheme(
-//        body1:  GoogleFonts.tajawal(fontStyle: FontStyle.normal   ),
-//      ),
-//      ),
-//      title: _title,
-//      home: MyStatefulWidget(),
-//    );
-//  }
-//}
+
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
@@ -53,8 +31,8 @@ class _MyStatefulWidgetState extends State<Home> {
   int _selectedIndex = 2;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-
+ //AppTranslations appTrans=AppTranslations();
+  int _page = 0;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

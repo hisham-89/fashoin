@@ -11,6 +11,7 @@ import 'package:flutterapp3/general/Loading.dart';
 
 import 'package:flutterapp3/general/colors.dart';
 import 'package:flutterapp3/general/ganeral.dart';
+import 'package:flutterapp3/general/translator.dart';
 import 'package:flutterapp3/products/homeScreen.dart';
 import 'package:flutterapp3/products/addEditProduct.dart';
 
@@ -18,6 +19,7 @@ import 'package:flutterapp3/products/shopScreen.dart';
 import 'package:flutterapp3/store/Like.dart';
 import 'package:flutterapp3/store/message.dart';
 import 'package:flutterapp3/store/product.dart';
+import 'package:flutterapp3/store/setting.dart';
 import 'package:flutterapp3/store/user.dart';
 
 import 'package:getflutter/components/carousel/gf_carousel.dart';
@@ -59,6 +61,8 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   bool visible=false;
   String id;
   var isliked=false;
+  AppTranslations AppTrans;
+  String lang;
   _ProductsDetailsScreenPageState(this.product,this.id);
   List data;
     List<Choice> choices = const <Choice>[
@@ -67,6 +71,24 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
     const Choice(id:"2",title: 'Delete  ', icon: Icons.delete),
 
   ];
+  initData() async{
+    var lan = await SettingStore().getLanguage();
+    setState(()  {
+      if (product == null){
+        this.getJSONData();
+      }else
+      {
+        this.id=product['id'].toString();
+      }
+      if(product !=null && product['is_liked'].length>0 ) {
+        isliked = true;
+      }
+      lang=lan;
+      AppTrans=new AppTranslations(lang);
+      AppTrans.load(lang);
+      visible=false;
+    });
+  }
   // Function to get the JSON data
   Future<String> getJSONData() async {
     var res =null;
@@ -136,7 +158,7 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   Widget colors(){
     return( Column (children: <Widget>[
       ListTile(
-        title: Text("Available Colors" ,style:TextStyle(fontSize: 20 )) , contentPadding: EdgeInsets.only(left: 0),),
+        title: Text(AppTrans.text("Available Colors")  ,style:TextStyle(fontSize: 20 )) , contentPadding: EdgeInsets.only(left: 0),),
       Container(
           child: buildDropdownButton(['Black','Blue','Red'],'Black')
       ),
@@ -232,7 +254,8 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
                     //decoration: BoxDecoration(border: Border.all(width: 2 )),
                     child:
                     Stack(children: <Widget>[
-                      Container( child: imageSlider(product['images'],product['id'].toString(), product ))//  Image(image: CachedNetworkImageProvider(image)))
+                      Container(color: Colors.white,
+                          child: imageSlider(product['images'],product['id'].toString(), product ))//  Image(image: CachedNetworkImageProvider(image)))
                       //General.mediaUrl(product['images'][0]['name'],) ,),
 
                     ],)
@@ -404,15 +427,6 @@ class _ProductsDetailsScreenPageState extends State<ProductsDetailsScreenPage> {
   void initState() {
     super.initState();
     // Call the getJSONData() method when the app initializes
-    if (product == null){
-      this.getJSONData();
-    }else
-    {
-      this.id=product['id'].toString();
-    }
-    if(product !=null && product['is_liked'].length>0 ){
-      setState(() {
-        isliked=true;
-      });}
+    initData();
   }
 }

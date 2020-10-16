@@ -6,7 +6,7 @@ import 'package:flutterapp3/config/url.dart';
 import 'package:flutterapp3/general/ganeral.dart';
 
 class Like{
-
+  var user=new User();
   likeProduct( data,isliked,productId) async{
 
       var url = baseUrl+'likes';
@@ -30,8 +30,9 @@ class Like{
         return   [];
     }
   getMyLikes(page) async {
-   // var url = baseUrl + 'users/' + User().getUserId() + '?with=likes';
-    var url = baseUrl+'likes/?search=user_id:'+User().getUserId()+'&page=$page&with=product';
+
+  await user.init();
+    var url = baseUrl+'likes/?search=user_id:'+user.getUserId()+'&page=$page&with=product';
     var header = new General().authHeader();
     debugPrint(url);
     var response = await http.get(url, headers: header);

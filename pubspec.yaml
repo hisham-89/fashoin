@@ -38,6 +38,9 @@ dependencies:
   google_sign_in: ^4.5.1
   google_sign_in_web: 0.9.1
   flutter_facebook_login: ^3.0.0
+  provider: ^3.0.0
+  shared_preferences: ^0.5.8
+  fluttertoast: ^7.0.2
   #image_picker: ^0.4.10
  # sms: ^0.2.0
  # flutter_login: ^1.0.14
@@ -70,6 +73,7 @@ flutter:
     - assets/images/instagram.png
     - assets/images/fashionLogo.jpeg
     - assets/images/google_logo.png
+    - assets/locale/localization_ar.json
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

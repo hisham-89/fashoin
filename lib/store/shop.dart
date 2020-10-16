@@ -7,7 +7,7 @@ import 'package:flutterapp3/general/ganeral.dart';
 import 'package:flutterapp3/store/user.dart';
 import 'package:http/http.dart' as http;
 class Shop {
-
+  var user=new User();
   final content;
   Shop({this.content });
 
@@ -58,9 +58,9 @@ class Shop {
   }
 
   getShops ( isMyShops,{searchByName,page}) async{
-
+      user.init();
     page!=null?page:1;
-    var user_id=User().getUserId();
+    var user_id=user.getUserId();
     String url;
     if(isMyShops!=null&&isMyShops){
       url = baseUrl+'shops?search=user_id:$user_id&page=$page';
@@ -70,16 +70,17 @@ class Shop {
     }
     else
          url = baseUrl+'shops?page=$page';
-    var header=new General().authHeader();
+    var header= await new General().authHeader();
     debugPrint(url  );
     var response = await http.get(url,headers: header );
 
-    var response1=jsonDecode( response.body);
-    print(response1);
-    if(response.statusCode==200)
-    if (response1['success']){
+    if(response.statusCode==200){
+      print(response.body );
+      var response1=jsonDecode( response.body);
+
+      if (response1['success']){
       return response1   ;
-    }
+    }}
 
     else
       return   0;

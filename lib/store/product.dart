@@ -91,7 +91,7 @@ class Product {
     }
     else
          url = baseUrl+'products?page='+page.toString();
-    var header=new General().authHeader();
+    var  header=await new General().authHeader();
     debugPrint(url);
     var response = await http.get(url,headers: header );
     var response1;
@@ -100,7 +100,7 @@ class Product {
    else
      return 0;
     if (response1['success']){
-
+    var header=new General().authHeader();
       return response1   ;
     }
 

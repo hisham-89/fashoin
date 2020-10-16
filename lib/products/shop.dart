@@ -12,9 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
-import 'package:date_util/date_util.dart';
+
 
 class ShopScreen extends StatelessWidget {
   // This widget is the root of your application.
@@ -163,10 +161,5 @@ class _MyHomePageState extends State<MyHomePage>   with TickerProviderStateMixin
     ;
   }
 
-//
-//  void initState() {
-//    super.initState();
-//    // Call the getJSONData() method when the app initializes
-//    this.getJSONData();
-//  }
+
 }
